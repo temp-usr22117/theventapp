@@ -13,6 +13,8 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
+  StreamSubscription<User?>? _authSubscription;
+  Timer? _loginFallbackTimer;
 
   @override
   void initState() {
@@ -29,23 +31,33 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    _checkSession();
-  }
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      (user) {
+        if (!mounted) return;
 
-  Future<void> _checkSession() async {
-    final user = await FirebaseAuth.instance.authStateChanges().first;
+        if (user != null) {
+          _loginFallbackTimer?.cancel();
+          Navigator.pushReplacementNamed(context, '/home');
+          return;
+        }
 
-    if (!mounted) return;
-
-    if (user != null) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
-    }
+        _loginFallbackTimer ??= Timer(
+          const Duration(seconds: 3),
+          () {
+            if (!mounted) return;
+            if (FirebaseAuth.instance.currentUser == null) {
+              Navigator.pushReplacementNamed(context, '/login');
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
+    _loginFallbackTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
