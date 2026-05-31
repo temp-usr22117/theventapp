@@ -16,6 +16,14 @@
 -keepattributes Signature
 -keepattributes Exceptions
 
+# Firebase
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+-keep class androidx.credentials.** { *; }
+-dontwarn androidx.credentials.**
+
 # Google Play Core (fix missing classes error)
 -dontwarn com.google.android.play.core.**
 -keep class com.google.android.play.core.** { *; }
