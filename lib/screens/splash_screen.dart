@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,8 +11,6 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
-  StreamSubscription<User?>? _authSubscription;
-  Timer? _loginFallbackTimer;
 
   @override
   void initState() {
@@ -30,34 +26,10 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _controller.forward();
-
-    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
-      (user) {
-        if (!mounted) return;
-
-        if (user != null) {
-          _loginFallbackTimer?.cancel();
-          Navigator.pushReplacementNamed(context, '/home');
-          return;
-        }
-
-        _loginFallbackTimer ??= Timer(
-          const Duration(seconds: 3),
-          () {
-            if (!mounted) return;
-            if (FirebaseAuth.instance.currentUser == null) {
-              Navigator.pushReplacementNamed(context, '/login');
-            }
-          },
-        );
-      },
-    );
   }
 
   @override
   void dispose() {
-    _authSubscription?.cancel();
-    _loginFallbackTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
