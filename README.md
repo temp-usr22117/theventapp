@@ -124,6 +124,9 @@ theventapp/
 3. Commit your changes
 4. Push and open a pull request
 
+## Command to directly install release apk on USB debugging device
+flutter build apk --release && adb install -r build/app/outputs/flutter-apk/app-release.apk
+
 ## License
 
 This project is licensed under the MIT License. See `LICENSE`.

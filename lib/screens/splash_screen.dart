@@ -13,7 +13,6 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
-  late Timer _sessionCheckTimer;
 
   @override
   void initState() {
@@ -30,17 +29,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Use Timer instead of Future.delayed so it can be cancelled
-    _sessionCheckTimer = Timer(
-      const Duration(seconds: 3),
-      _checkSession,
-    );
+    _checkSession();
   }
 
-  void _checkSession() {
+  Future<void> _checkSession() async {
+    final user = await FirebaseAuth.instance.authStateChanges().first;
+
     if (!mounted) return;
 
-    final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
@@ -50,8 +46,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void dispose() {
-    // Cancel the timer to prevent navigation after widget is disposed
-    _sessionCheckTimer.cancel();
     _controller.dispose();
     super.dispose();
   }
