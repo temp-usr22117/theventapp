@@ -6,10 +6,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final PostService _postService = PostService();
   List<PostModel> _posts = [];
   bool _isLoading = true;
@@ -24,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     super.dispose();
   }
+
+  void loadPosts() => _loadPosts();
 
   Future<void> _loadPosts() async {
     setState(() => _isLoading = true);
@@ -94,29 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/post')
-                    .then((_) => _loadPosts());
-              },
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7C4DFF),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
       body: _isLoading
           ? const Center(
@@ -158,9 +137,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   onRefresh: _loadPosts,
                   color: const Color(0xFF7C4DFF),
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                    padding: const EdgeInsets.fromLTRB(
+                      16,
+                      12,
+                      16,
+                      100,
                     ),
                     itemCount: _posts.length,
                     itemBuilder: (context, index) {

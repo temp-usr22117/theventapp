@@ -1,30 +1,114 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:theventapp/main.dart';
+import 'package:theventapp/widgets/floating_nav_bar.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('ModernFloatingNavBar renders and handles taps', (WidgetTester tester) async {
+    int selectedTab = 0;
+    bool postTapped = false;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          bottomNavigationBar: StatefulBuilder(
+            builder: (context, setState) {
+              return ModernFloatingNavBar(
+                currentIndex: selectedTab,
+                onTabSelected: (index) {
+                  setState(() => selectedTab = index);
+                },
+                onPostTap: () {
+                  postTapped = true;
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Verify Home, Post, Profile are present
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Post'), findsOneWidget);
+    expect(find.text('Profile'), findsOneWidget);
+
+    // Tap Profile
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    expect(selectedTab, 1);
+
+    // Tap Home
+    await tester.tap(find.text('Home'));
+    await tester.pumpAndSettle();
+    expect(selectedTab, 0);
+
+    // Tap Post
+    await tester.tap(find.text('Post'));
+    await tester.pumpAndSettle();
+    expect(postTapped, isTrue);
+  });
+
+  testWidgets('ModernFloatingNavBar handles horizontal sliding gestures', (WidgetTester tester) async {
+    int selectedTab = 0;
+    bool postTapped = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          bottomNavigationBar: StatefulBuilder(
+            builder: (context, setState) {
+              return ModernFloatingNavBar(
+                currentIndex: selectedTab,
+                onTabSelected: (index) {
+                  setState(() => selectedTab = index);
+                },
+                onPostTap: () {
+                  postTapped = true;
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    final navBarFinder = find.byType(ModernFloatingNavBar);
+    expect(navBarFinder, findsOneWidget);
+
+    // Drag from left to right across the bar
+    final center = tester.getCenter(navBarFinder);
+    final leftOrigin = Offset(center.dx - 120, center.dy);
+    final rightDestination = Offset(center.dx + 120, center.dy);
+
+    final gesture = await tester.startGesture(leftOrigin);
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Slide toward right (Profile)
+    await gesture.moveTo(rightDestination);
+    await tester.pumpAndSettle();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(selectedTab, 1);
+
+    // Now slide back to left (Home)
+    final gestureBack = await tester.startGesture(rightDestination);
+    await tester.pump();
+    await gestureBack.moveTo(leftOrigin);
+    await tester.pumpAndSettle();
+    await gestureBack.up();
+    await tester.pumpAndSettle();
+
+    expect(selectedTab, 0);
+
+    // Slide onto center (Post) and release
+    final gestureCenter = await tester.startGesture(leftOrigin);
+    await tester.pump();
+    await gestureCenter.moveTo(center);
+    await tester.pumpAndSettle();
+    await gestureCenter.up();
+    await tester.pumpAndSettle();
+
+    expect(postTapped, isTrue);
   });
 }
