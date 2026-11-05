@@ -24,6 +24,16 @@
 -keep class androidx.credentials.** { *; }
 -dontwarn androidx.credentials.**
 
+# AndroidX Security, Crypto & SharedPreferences (used for auth token persistence)
+-keep class androidx.security.crypto.** { *; }
+-dontwarn androidx.security.crypto.**
+-keep class com.google.crypto.tink.** { *; }
+-dontwarn com.google.crypto.tink.**
+-keep class androidx.datastore.** { *; }
+-dontwarn androidx.datastore.**
+-keep class androidx.preference.** { *; }
+-dontwarn androidx.preference.**
+
 # Google Play Core (fix missing classes error)
 -dontwarn com.google.android.play.core.**
 -keep class com.google.android.play.core.** { *; }

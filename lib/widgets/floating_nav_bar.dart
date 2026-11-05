@@ -78,10 +78,14 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
     // Effective active tab for the sliding indicator (0 = Home, 1 = Profile)
     final activeTab = widget.currentIndex;
 
-    return Center(
+    return Align(
+      alignment: Alignment.bottomCenter,
+      heightFactor: 1.0,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
-        child: LayoutBuilder(
+        child: SizedBox(
+          height: 66,
+          child: LayoutBuilder(
           builder: (context, constraints) {
             final totalWidth = constraints.maxWidth;
             final itemWidth = totalWidth / 3;
@@ -208,7 +212,8 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
           },
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildNavItem({

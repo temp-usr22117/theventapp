@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
@@ -12,18 +11,15 @@ import 'screens/post_details_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/about_screen.dart';
 import 'widgets/floating_nav_bar.dart';
+import 'services/session_service.dart';
 import 'models/post_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kIsWeb) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } else {
-    await Firebase.initializeApp();
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }
@@ -61,25 +57,91 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
   @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
+  bool _isChecking = true;
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkAuthSession();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-validate session when app is resumed from background
+      _checkAuthSession();
+    }
+  }
+
+  Future<void> _checkAuthSession() async {
+    final isValid = await SessionService().isSessionValid();
+    if (!isValid) {
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+          _isAuthenticated = false;
+        });
+      }
+      return;
+    }
+
+    // Session is marked valid locally; verify/await Firebase user restore
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      try {
+        user = await FirebaseAuth.instance
+            .authStateChanges()
+            .firstWhere((u) => u != null)
+            .timeout(const Duration(seconds: 3));
+      } catch (e) {
+        user = FirebaseAuth.instance.currentUser;
+      }
+    }
+
+    if (!mounted) return;
+
+    if (user != null) {
+      await SessionService().recordActivity();
+      setState(() {
+        _isChecking = false;
+        _isAuthenticated = true;
+      });
+    } else {
+      await SessionService().onLogout();
+      setState(() {
+        _isChecking = false;
+        _isAuthenticated = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SplashScreen();
-        }
+    if (_isChecking) {
+      return const SplashScreen();
+    }
 
-        if (snapshot.hasData && snapshot.data != null) {
-          return const MainScreen();
-        }
+    if (_isAuthenticated) {
+      return const MainScreen();
+    }
 
-        return const LoginScreen();
-      },
-    );
+    return const LoginScreen();
   }
 }
 
@@ -90,7 +152,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
   late final PageController _pageController;
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
@@ -98,16 +160,33 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pageController = PageController(initialPage: _currentIndex);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pageController.dispose();
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkSessionOnResume();
+    }
+  }
+
+  Future<void> _checkSessionOnResume() async {
+    final isValid = await SessionService().isSessionValid();
+    if (!isValid && mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+  }
+
   void _onTabSelected(int index) {
+    SessionService().recordActivity();
     if (_currentIndex == index) return;
     setState(() => _currentIndex = index);
     _pageController.animateToPage(
@@ -118,6 +197,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _onPostTap() async {
+    SessionService().recordActivity();
     await Navigator.pushNamed(context, '/post');
     // If user was on Profile tab when posting, transition back to Home to see the post
     if (_currentIndex != 0) {
