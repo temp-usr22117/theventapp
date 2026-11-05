@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'session_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -59,6 +60,9 @@ class AuthService {
 
       await cred.user!.updateDisplayName(cleanUsername);
 
+      // Persist session locally with 1-week validity
+      await SessionService().onLogin(uid);
+
       return {
         'success': true,
         'message': 'Account created successfully!',
@@ -87,6 +91,11 @@ class AuthService {
         password: password,
       );
 
+      // Persist session locally with 1-week validity
+      if (cred.user != null) {
+        await SessionService().onLogin(cred.user!.uid);
+      }
+
       return {
         'success': true,
         'message': 'Login successful!',
@@ -107,6 +116,7 @@ class AuthService {
 
   // Logout user
   Future<void> logout() async {
+    await SessionService().onLogout();
     await _auth.signOut();
   }
 

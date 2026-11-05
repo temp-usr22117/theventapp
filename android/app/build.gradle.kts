@@ -33,10 +33,16 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
+                getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.firebase:firebase-auth:23.1.0")
     }
 }
 
