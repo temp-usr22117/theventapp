@@ -117,89 +117,94 @@ class _PostScreenState extends State<PostScreen> {
         ],
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Info text
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFF7C4DFF).withOpacity(0.3),
-                ),
-              ),
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    color: Color(0xFF7C4DFF),
-                    size: 16,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Info text
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Your vent is anonymous. Speak freely.',
-                    style: TextStyle(
-                      color: Color(0xFF9E9E9E),
-                      fontSize: 12,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF7C4DFF).withOpacity(0.3),
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        color: Color(0xFF7C4DFF),
+                        size: 16,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Your vent is anonymous. Speak freely.',
+                        style: TextStyle(
+                          color: Color(0xFF9E9E9E),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-            // Text Field
-            Expanded(
-              child: TextField(
-                controller: _contentController,
-                maxLines: null,
-                expands: true,
-                maxLength: _maxChars,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  height: 1.6,
-                ),
-                decoration: InputDecoration(
-                  hintText: "What's on your mind? Let it out...",
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                    fontSize: 16,
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFF1A1A1A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF7C4DFF),
-                      width: 1.5,
+                // Text Field
+                Expanded(
+                  child: TextField(
+                    controller: _contentController,
+                    maxLines: null,
+                    expands: true,
+                    maxLength: _maxChars,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      height: 1.6,
                     ),
+                    decoration: InputDecoration(
+                      hintText: "What's on your mind? Let it out...",
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF9E9E9E),
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFF1A1A1A),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF7C4DFF),
+                          width: 1.5,
+                        ),
+                      ),
+                      counterStyle: const TextStyle(
+                        color: Color(0xFF9E9E9E),
+                      ),
+                      alignLabelWithHint: true,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _charCount = value.length;
+                      });
+                    },
                   ),
-                  counterStyle: const TextStyle(
-                    color: Color(0xFF9E9E9E),
-                  ),
-                  alignLabelWithHint: true,
-                  contentPadding: const EdgeInsets.all(16),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _charCount = value.length;
-                  });
-                },
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

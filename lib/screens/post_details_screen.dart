@@ -145,8 +145,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 700),
+          child: Column(
+            children: [
           // Scrollable content
           Expanded(
             child: ListView(
@@ -476,6 +479,8 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 }

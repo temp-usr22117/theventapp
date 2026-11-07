@@ -1,46 +1,147 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="TheVent - Speak freely. Anonymously.">
+  <meta name="theme-color" content="#0D0D0D">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="theventapp">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TheVent">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>theventapp</title>
+  <title>TheVent - Speak freely. Anonymously.</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      background-color: #0D0D0D;
+      color: #FFFFFF;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    #thevent-splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #0D0D0D;
+      z-index: 999999;
+      transition: opacity 0.35s ease-out;
+    }
+    .splash-logo-container {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .splash-logo-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle, rgba(124, 77, 255, 0.45) 0%, rgba(124, 77, 255, 0) 70%);
+      border-radius: 50%;
+      animation: pulse-glow 2s infinite ease-in-out;
+    }
+    .splash-logo {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 16px rgba(124, 77, 255, 0.3));
+    }
+    .splash-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .splash-subtitle {
+      font-size: 13px;
+      letter-spacing: 1.2px;
+      color: #9E9E9E;
+      margin-bottom: 32px;
+      text-transform: uppercase;
+    }
+    .splash-loader-bar {
+      width: 180px;
+      height: 4px;
+      background: #1A1A1A;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+    .splash-loader-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 45%;
+      background: linear-gradient(90deg, #7C4DFF, #B388FF);
+      border-radius: 99px;
+      animation: indeterminate 1.4s infinite ease-in-out;
+    }
+    @keyframes pulse-glow {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.9;
+      }
+    }
+    @keyframes indeterminate {
+      0% {
+        left: -45%;
+        width: 30%;
+      }
+      50% {
+        left: 30%;
+        width: 60%;
+      }
+      100% {
+        left: 105%;
+        width: 30%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="thevent-splash">
+    <div class="splash-logo-container">
+      <div class="splash-logo-glow"></div>
+      <img class="splash-logo" src="icons/Icon-192.png" alt="TheVent Logo" />
+    </div>
+    <div class="splash-title">TheVent</div>
+    <div class="splash-subtitle">Speak freely. Anonymously.</div>
+    <div class="splash-loader-bar">
+      <div class="splash-loader-fill"></div>
+    </div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
