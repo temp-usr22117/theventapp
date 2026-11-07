@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/profile_service.dart';
+import '../utils/responsive.dart';
 import 'about_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -242,9 +243,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Color(0xFF7C4DFF),
               ),
             )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
-              child: Column(
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    24,
+                    24,
+                    24,
+                    Responsive.isWide(context) ? 40 : 100,
+                  ),
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
@@ -433,6 +442,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
+          ),
+        ),
     );
   }
 }

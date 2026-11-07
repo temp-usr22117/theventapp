@@ -10,8 +10,13 @@ import 'screens/post_screen.dart';
 import 'screens/post_details_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/about_screen.dart';
+import 'screens/report_bug_screen.dart';
 import 'widgets/floating_nav_bar.dart';
+import 'widgets/desktop_sidebar.dart';
+import 'widgets/app_drawer.dart';
 import 'services/session_service.dart';
+import 'services/auth_service.dart';
+import 'utils/responsive.dart';
 import 'models/post_model.dart';
 
 void main() async {
@@ -43,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MainScreen(),
         '/post': (context) => const PostScreen(),
         '/about': (context) => const AboutScreen(),
+        '/report-bug': (context) => const ReportBugScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/post-details') {
@@ -84,7 +90,6 @@ class _AuthGateState extends State<AuthGate> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Re-validate session when app is resumed from background
       _checkAuthSession();
     }
   }
@@ -154,8 +159,10 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
+  bool _isSidebarCollapsed = false;
   late final PageController _pageController;
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -187,33 +194,155 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   void _onTabSelected(int index) {
     SessionService().recordActivity();
-    if (_currentIndex == index) return;
-    setState(() => _currentIndex = index);
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    final isWide = Responsive.isWide(context);
+
+    if (isWide) {
+      if (_currentIndex == index) return;
+      setState(() => _currentIndex = index);
+      if (index == 0) {
+        _homeKey.currentState?.loadPosts();
+      }
+      return;
+    }
+
+    // On Mobile:
+    if (index == 0 || index == 1) {
+      if (_currentIndex == index) return;
+      setState(() => _currentIndex = index);
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+      );
+      if (index == 0) {
+        _homeKey.currentState?.loadPosts();
+      }
+    } else if (index == 2) {
+      Navigator.pushNamed(context, '/about');
+    } else if (index == 3) {
+      Navigator.pushNamed(context, '/report-bug');
+    }
   }
 
   Future<void> _onPostTap() async {
     SessionService().recordActivity();
     await Navigator.pushNamed(context, '/post');
+    if (!mounted) return;
     // If user was on Profile tab when posting, transition back to Home to see the post
     if (_currentIndex != 0) {
-      _pageController.animateToPage(
-        0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-      );
+      if (!Responsive.isWide(context)) {
+        _pageController.animateToPage(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
       setState(() => _currentIndex = 0);
     }
     _homeKey.currentState?.loadPosts();
   }
 
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Logout',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(color: Color(0xFF9E9E9E)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF9E9E9E)),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final nav = Navigator.of(context);
+              Navigator.pop(dialogContext);
+              await AuthService().logout();
+              if (mounted) {
+                nav.pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text(
+              'Logout',
+              style: TextStyle(
+                color: Color(0xFFFF4D6D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isWide = Responsive.isWide(context);
+
+    if (isWide) {
+      // Desktop / Wide layout (Reddit / Twitter style)
+      return Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: const Color(0xFF0D0D0D),
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Navigation Sidebar (collapsible via hamburger)
+            DesktopSidebar(
+              currentIndex: _currentIndex,
+              onTabSelected: _onTabSelected,
+              onPostTap: _onPostTap,
+              isCollapsed: _isSidebarCollapsed,
+              onToggleCollapse: () {
+                setState(() => _isSidebarCollapsed = !_isSidebarCollapsed);
+              },
+              onLogout: _showLogoutDialog,
+            ),
+
+            // Center-Right Content Area (Constrained max-width for reading)
+            Expanded(
+              child: IndexedStack(
+                index: _currentIndex,
+                children: [
+                  HomeScreen(key: _homeKey, onPostTap: _onPostTap),
+                  const ProfileScreen(),
+                  const AboutScreen(),
+                  const ReportBugScreen(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        // No floating navigation bar on desktop/web!
+        bottomNavigationBar: null,
+      );
+    }
+
+    // Mobile layout
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: AppDrawer(
+        currentIndex: _currentIndex,
+        onTabSelected: _onTabSelected,
+        onPostTap: _onPostTap,
+        onLogout: _showLogoutDialog,
+      ),
       extendBody: true,
       body: PageView(
         controller: _pageController,
@@ -222,7 +351,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           setState(() => _currentIndex = index);
         },
         children: [
-          HomeScreen(key: _homeKey),
+          HomeScreen(key: _homeKey, onPostTap: _onPostTap),
           const ProfileScreen(),
         ],
       ),
@@ -232,7 +361,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
           child: ModernFloatingNavBar(
-            currentIndex: _currentIndex,
+            currentIndex: _currentIndex > 1 ? 0 : _currentIndex,
             onTabSelected: _onTabSelected,
             onPostTap: _onPostTap,
           ),
