@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/post_model.dart';
 import '../models/reply_model.dart';
 import '../services/post_service.dart';
+import '../utils/avatar_helper.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final PostModel post;
@@ -173,22 +174,12 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       // User Info Row
                       Row(
                         children: [
-                          CircleAvatar(
+                          UserAvatar(
+                            imageUrl: widget.post.profilePictureUrl,
                             radius: 22,
                             backgroundColor: const Color(0xFF2C2C2C),
-                            backgroundImage:
-                                widget.post.profilePictureUrl != null &&
-                                        widget.post.profilePictureUrl!.isNotEmpty
-                                    ? NetworkImage(widget.post.profilePictureUrl!)
-                                    : null,
-                            child: widget.post.profilePictureUrl == null ||
-                                    widget.post.profilePictureUrl!.isEmpty
-                                ? const Icon(
-                                    Icons.person_outline,
-                                    color: Color(0xFF9E9E9E),
-                                    size: 22,
-                                  )
-                                : null,
+                            fallbackIcon: Icons.person_outline,
+                            iconSize: 22,
                           ),
                           const SizedBox(width: 10),
                           Column(
@@ -335,22 +326,12 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                           // Reply User Info
                           Row(
                             children: [
-                              CircleAvatar(
+                              UserAvatar(
+                                imageUrl: reply.profilePictureUrl,
                                 radius: 16,
                                 backgroundColor: const Color(0xFF2C2C2C),
-                                backgroundImage:
-                                    reply.profilePictureUrl != null &&
-                                            reply.profilePictureUrl!.isNotEmpty
-                                        ? NetworkImage(reply.profilePictureUrl!)
-                                        : null,
-                                child: reply.profilePictureUrl == null ||
-                                        reply.profilePictureUrl!.isEmpty
-                                    ? const Icon(
-                                        Icons.person_outline,
-                                        color: Color(0xFF9E9E9E),
-                                        size: 16,
-                                      )
-                                    : null,
+                                fallbackIcon: Icons.person_outline,
+                                iconSize: 16,
                               ),
                               const SizedBox(width: 8),
                               Column(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
+import '../utils/avatar_helper.dart';
 import '../utils/responsive.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -252,20 +253,12 @@ class HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
-          CircleAvatar(
+          UserAvatar(
+            imageUrl: user?.photoURL,
             radius: 19,
             backgroundColor: const Color(0xFF262626),
-            backgroundImage:
-                user?.photoURL != null && user!.photoURL!.isNotEmpty
-                    ? NetworkImage(user.photoURL!)
-                    : null,
-            child: user?.photoURL == null || user!.photoURL!.isEmpty
-                ? const Icon(
-                    Icons.person_outline_rounded,
-                    color: Color(0xFF9E9E9E),
-                    size: 20,
-                  )
-                : null,
+            fallbackIcon: Icons.person_outline_rounded,
+            iconSize: 20,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -396,21 +389,12 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
               // User Info Row
               Row(
                 children: [
-                  CircleAvatar(
+                  UserAvatar(
+                    imageUrl: post.profilePictureUrl,
                     radius: 20,
                     backgroundColor: const Color(0xFF282828),
-                    backgroundImage: post.profilePictureUrl != null &&
-                            post.profilePictureUrl!.isNotEmpty
-                        ? NetworkImage(post.profilePictureUrl!)
-                        : null,
-                    child: post.profilePictureUrl == null ||
-                            post.profilePictureUrl!.isEmpty
-                        ? const Icon(
-                            Icons.person_outline,
-                            color: Color(0xFF9E9E9E),
-                            size: 20,
-                          )
-                        : null,
+                    fallbackIcon: Icons.person_outline,
+                    iconSize: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
