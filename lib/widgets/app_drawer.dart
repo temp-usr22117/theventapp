@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/avatar_helper.dart';
 
 class AppDrawer extends StatelessWidget {
   final int currentIndex;
@@ -153,20 +154,12 @@ class AppDrawer extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  UserAvatar(
+                    imageUrl: user?.photoURL,
                     radius: 20,
                     backgroundColor: const Color(0xFF262626),
-                    backgroundImage:
-                        user?.photoURL != null && user!.photoURL!.isNotEmpty
-                            ? NetworkImage(user.photoURL!)
-                            : null,
-                    child: user?.photoURL == null || user!.photoURL!.isEmpty
-                        ? const Icon(
-                            Icons.person_rounded,
-                            color: Color(0xFF9E9E9E),
-                            size: 22,
-                          )
-                        : null,
+                    fallbackIcon: Icons.person_rounded,
+                    iconSize: 22,
                   ),
                   const SizedBox(width: 12),
                   Expanded(

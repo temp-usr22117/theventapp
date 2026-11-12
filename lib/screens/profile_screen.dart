@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/profile_service.dart';
+import '../utils/avatar_helper.dart';
 import '../utils/responsive.dart';
 import 'about_screen.dart';
 
@@ -133,13 +134,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final result = await _profileService.uploadProfilePicture(image);
 
+    if (!mounted) return;
     setState(() => _isUploadingImage = false);
 
-    if (result['success']) {
+    if (result['success'] == true) {
       _showMessage('Profile picture updated!');
       await _loadProfile();
     } else {
-      _showMessage(result['message'] ?? 'Failed to upload image');
+      _showMessage(
+        result['message'] ?? 'Failed to upload image',
+        isError: true,
+      );
     }
   }
 
@@ -148,13 +153,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final result = await _profileService.removeProfilePicture();
 
+    if (!mounted) return;
     setState(() => _isUploadingImage = false);
 
-    if (result['success']) {
+    if (result['success'] == true) {
       _showMessage('Profile picture removed!');
       await _loadProfile();
     } else {
-      _showMessage(result['message'] ?? 'Failed to remove image');
+      _showMessage(
+        result['message'] ?? 'Failed to remove image',
+        isError: true,
+      );
     }
   }
 
@@ -207,12 +216,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showMessage(String message) {
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: const Color(0xFF2C2C2C),
+        content: Row(
+          children: [
+            Icon(
+              isError ? Icons.error_outline : Icons.check_circle_outline,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor:
+            isError ? const Color(0xFFD32F2F) : const Color(0xFF2E7D32),
         behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(
+          bottom: Responsive.isWide(context) ? 20.0 : 100.0,
+          left: 16.0,
+          right: 16.0,
+        ),
+        duration: Duration(seconds: isError ? 4 : 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -281,25 +318,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       color: Color(0xFF7C4DFF),
                                     ),
                                   )
-                                : _profile?['profile_picture_url'] != null
-                                    ? Image.network(
-                                        _profile!['profile_picture_url'],
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(
-                                          Icons.person_outline,
-                                          color: Color(0xFF9E9E9E),
-                                          size: 50,
-                                        ),
-                                      )
-                                    : const CircleAvatar(
+                                : Builder(
+                                    builder: (context) {
+                                      final imageProvider =
+                                          getUserAvatarImageProvider(
+                                        _profile?['profile_picture_url'],
+                                      );
+                                      if (imageProvider != null) {
+                                        return Image(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              const Icon(
+                                            Icons.person_outline,
+                                            color: Color(0xFF9E9E9E),
+                                            size: 50,
+                                          ),
+                                        );
+                                      }
+                                      return const CircleAvatar(
                                         backgroundColor: Color(0xFF2C2C2C),
                                         child: Icon(
                                           Icons.person_outline,
                                           color: Color(0xFF9E9E9E),
                                           size: 50,
                                         ),
-                                      ),
+                                      );
+                                    },
+                                  ),
                           ),
                         ),
                       ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,9 +46,16 @@ class AuthService {
 
       String? profilePictureUrl;
       if (profileImage != null) {
-        final ref = _storage.ref('profiles/$uid/profile.jpg');
-        await ref.putFile(profileImage);
-        profilePictureUrl = await ref.getDownloadURL();
+        try {
+          final ref = _storage.ref('profiles/$uid/profile.jpg');
+          await ref.putFile(profileImage);
+          profilePictureUrl = await ref.getDownloadURL();
+        } catch (_) {
+          try {
+            final bytes = await profileImage.readAsBytes();
+            profilePictureUrl = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+          } catch (_) {}
+        }
       }
 
       await _db.collection('users').doc(uid).set({
@@ -59,6 +67,11 @@ class AuthService {
       });
 
       await cred.user!.updateDisplayName(cleanUsername);
+      if (profilePictureUrl != null && profilePictureUrl.length <= 2048) {
+        try {
+          await cred.user!.updatePhotoURL(profilePictureUrl);
+        } catch (_) {}
+      }
 
       // Persist session locally with 1-week validity
       await SessionService().onLogin(uid);

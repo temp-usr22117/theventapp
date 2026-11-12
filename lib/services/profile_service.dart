@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'session_service.dart';
 
@@ -41,9 +43,9 @@ class ProfileService {
     try {
       final image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 80,
+        maxWidth: 256,
+        maxHeight: 256,
+        imageQuality: 70,
       );
       return image;
     } catch (e) {
@@ -51,7 +53,7 @@ class ProfileService {
     }
   }
 
-  // Upload profile picture to Firebase Storage
+  // Upload profile picture to Firebase Storage with Firestore fallback
   Future<Map<String, dynamic>> uploadProfilePicture(XFile image) async {
     try {
       final user = _auth.currentUser;
@@ -59,17 +61,77 @@ class ProfileService {
         return {'success': false, 'message': 'Not logged in'};
       }
 
-      final ref = _storage.ref('profiles/${user.uid}/profile.jpg');
-      await ref.putFile(File(image.path));
-      final publicUrl = await ref.getDownloadURL();
+      final imageBytes = await image.readAsBytes();
+      if (imageBytes.isEmpty) {
+        return {'success': false, 'message': 'Selected image is empty'};
+      }
 
-      await _db.collection('users').doc(user.uid).set({
-        'profile_picture_url': publicUrl,
-      }, SetOptions(merge: true));
+      String? publicUrl;
+      String? storageErrorDetails;
 
-      return {'success': true, 'url': publicUrl};
-    } catch (_) {
-      return {'success': false, 'message': 'Failed to upload image'};
+      // 1. Attempt upload to Firebase Storage
+      try {
+        final ref = _storage.ref('profiles/${user.uid}/profile.jpg');
+        final metadata = SettableMetadata(contentType: 'image/jpeg');
+
+        if (kIsWeb) {
+          await ref.putData(imageBytes, metadata);
+        } else {
+          await ref.putFile(File(image.path), metadata);
+        }
+        publicUrl = await ref.getDownloadURL();
+      } on FirebaseException catch (e) {
+        storageErrorDetails = 'Firebase Storage (${e.code}): ${e.message ?? 'Bucket not found'}';
+      } catch (e) {
+        storageErrorDetails = 'Storage error: $e';
+      }
+
+      // 2. If Firebase Storage upload succeeded
+      if (publicUrl != null && publicUrl.isNotEmpty) {
+        await _db.collection('users').doc(user.uid).set({
+          'profile_picture_url': publicUrl,
+        }, SetOptions(merge: true));
+
+        try {
+          await user.updatePhotoURL(publicUrl);
+          await user.reload();
+        } catch (_) {}
+
+        return {'success': true, 'url': publicUrl};
+      }
+
+      // 3. Fallback: Firebase Storage bucket is not provisioned (HTTP 404 / Spark plan)
+      // Save compressed image data URI in Firestore user profile
+      try {
+        final base64String = base64Encode(imageBytes);
+        final dataUri = 'data:image/jpeg;base64,$base64String';
+
+        await _db.collection('users').doc(user.uid).set({
+          'profile_picture_url': dataUri,
+        }, SetOptions(merge: true));
+
+        if (dataUri.length <= 2048) {
+          try {
+            await user.updatePhotoURL(dataUri);
+            await user.reload();
+          } catch (_) {}
+        }
+
+        return {
+          'success': true,
+          'url': dataUri,
+          'fallback': true,
+        };
+      } catch (firestoreError) {
+        return {
+          'success': false,
+          'message': storageErrorDetails != null
+              ? '$storageErrorDetails\nFallback failed: $firestoreError'
+              : 'Failed to upload image: $firestoreError',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to upload image: $e'};
     }
   }
 
@@ -81,16 +143,23 @@ class ProfileService {
         return {'success': false, 'message': 'Not logged in'};
       }
 
-      final ref = _storage.ref('profiles/${user.uid}/profile.jpg');
-      await ref.delete().catchError((_) {});
+      try {
+        final ref = _storage.ref('profiles/${user.uid}/profile.jpg');
+        await ref.delete().catchError((_) {});
+      } catch (_) {}
 
       await _db.collection('users').doc(user.uid).set({
         'profile_picture_url': null,
       }, SetOptions(merge: true));
 
+      try {
+        await user.updatePhotoURL(null);
+        await user.reload();
+      } catch (_) {}
+
       return {'success': true};
-    } catch (_) {
-      return {'success': false, 'message': 'Failed to remove image'};
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to remove image: $e'};
     }
   }
 
