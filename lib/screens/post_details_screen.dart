@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/post_model.dart';
 import '../models/reply_model.dart';
 import '../services/post_service.dart';
@@ -122,6 +123,96 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     return '${(difference.inDays / 7).floor()}w ago';
   }
 
+  Future<void> _confirmDeletePost() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Delete Vent',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this vent? This action cannot be undone.',
+          style: TextStyle(color: Color(0xFF9E9E9E)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Color(0xFFFF4D6D), fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await _postService.deletePost(widget.post.id);
+      if (!mounted) return;
+      if (result['success'] == true) {
+        Navigator.pop(context, true);
+      } else {
+        _showMessage(result['message'] ?? 'Failed to delete vent');
+      }
+    }
+  }
+
+  Future<void> _confirmDeleteReply(ReplyModel reply) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Delete Reply',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this reply?',
+          style: TextStyle(color: Color(0xFF9E9E9E)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Color(0xFFFF4D6D), fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await _postService.deleteReply(
+        postId: widget.post.id,
+        replyId: reply.id,
+      );
+      if (!mounted) return;
+      if (result['success'] == true) {
+        _showMessage('Reply deleted');
+        _loadReplies();
+      } else {
+        _showMessage(result['message'] ?? 'Failed to delete reply');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,6 +236,17 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          if (FirebaseAuth.instance.currentUser?.uid == widget.post.userId)
+            IconButton(
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: Color(0xFFFF5277),
+              ),
+              tooltip: 'Delete Vent',
+              onPressed: _confirmDeletePost,
+            ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(
@@ -354,6 +456,21 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                   ),
                                 ],
                               ),
+                              const Spacer(),
+                              if (FirebaseAuth.instance.currentUser?.uid ==
+                                  reply.userId)
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Color(0xFFFF5277),
+                                    size: 18,
+                                  ),
+                                  tooltip: 'Delete Reply',
+                                  splashRadius: 16,
+                                  constraints: const BoxConstraints(),
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () => _confirmDeleteReply(reply),
+                                ),
                             ],
                           ),
                           const SizedBox(height: 8),

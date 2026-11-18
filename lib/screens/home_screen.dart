@@ -326,7 +326,75 @@ class HomeScreenState extends State<HomeScreen> {
         });
       },
       onLikeTap: () => _toggleLike(post),
+      onDeleteTap: () => _confirmDeletePost(post),
     );
+  }
+
+  Future<void> _confirmDeletePost(PostModel post) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Delete Vent',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this vent? This action cannot be undone.',
+          style: TextStyle(color: Color(0xFF9E9E9E)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Color(0xFFFF4D6D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await _postService.deletePost(post.id);
+      if (!mounted) return;
+      if (result['success'] == true) {
+        setState(() {
+          _posts.removeWhere((p) => p.id == post.id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Vent deleted successfully'),
+            backgroundColor: const Color(0xFF2E7D32),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Failed to delete vent'),
+            backgroundColor: const Color(0xFFD32F2F),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -335,12 +403,14 @@ class _HoverablePostCard extends StatefulWidget {
   final String timeAgo;
   final VoidCallback onTap;
   final VoidCallback onLikeTap;
+  final VoidCallback? onDeleteTap;
 
   const _HoverablePostCard({
     required this.post,
     required this.timeAgo,
     required this.onTap,
     required this.onLikeTap,
+    this.onDeleteTap,
   });
 
   @override
@@ -441,6 +511,19 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                       ],
                     ),
                   ),
+                  if (FirebaseAuth.instance.currentUser?.uid == post.userId)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Color(0xFF8E8E8E),
+                        size: 20,
+                      ),
+                      tooltip: 'Delete your vent',
+                      splashRadius: 18,
+                      constraints: const BoxConstraints(),
+                      padding: EdgeInsets.zero,
+                      onPressed: widget.onDeleteTap,
+                    ),
                 ],
               ),
               const SizedBox(height: 14),

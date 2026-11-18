@@ -68,6 +68,105 @@ class PostService {
     }
   }
 
+  // Get all vents posted by a specific user
+  Future<List<PostModel>> getUserPosts(String userId) async {
+    try {
+      final currentUserId = await _getCurrentUserId();
+
+      final snapshot = await _db
+          .collection('posts')
+          .where('user_id', isEqualTo: userId)
+          .get();
+
+      final posts = <PostModel>[];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        bool isLiked = false;
+        if (currentUserId != null) {
+          final likeDoc = await _db
+              .collection('posts')
+              .doc(doc.id)
+              .collection('likes')
+              .doc(currentUserId)
+              .get();
+          isLiked = likeDoc.exists;
+        }
+
+        final createdAt = data['created_at'] is Timestamp
+            ? (data['created_at'] as Timestamp).toDate().toIso8601String()
+            : DateTime.now().toIso8601String();
+
+        posts.add(
+          PostModel.fromMap({
+            'id': doc.id,
+            'content': data['content'] ?? '',
+            'user_id': data['user_id'] ?? '',
+            'likes_count': data['likes_count'] ?? 0,
+            'created_at': createdAt,
+            'users': {
+              'username': data['username'] ?? 'Unknown',
+              'profile_picture_url': data['profile_picture_url'],
+            },
+            'is_liked': isLiked,
+          }),
+        );
+      }
+
+      // Sort by newest first
+      posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return posts;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // Delete a post and its subcollections (author only)
+  Future<Map<String, dynamic>> deletePost(String postId) async {
+    try {
+      final uid = await _getCurrentUserId();
+      if (uid == null) {
+        return {'success': false, 'message': 'You must be logged in to delete.'};
+      }
+
+      final postRef = _db.collection('posts').doc(postId);
+      final doc = await postRef.get();
+      if (!doc.exists) {
+        return {'success': false, 'message': 'Vent not found.'};
+      }
+
+      final data = doc.data();
+      if (data?['user_id'] != uid) {
+        return {
+          'success': false,
+          'message': 'You can only delete your own vents.'
+        };
+      }
+
+      // Delete subcollections (replies & likes)
+      try {
+        final repliesSnap = await postRef.collection('replies').get();
+        for (final r in repliesSnap.docs) {
+          await r.reference.delete();
+        }
+      } catch (_) {}
+
+      try {
+        final likesSnap = await postRef.collection('likes').get();
+        for (final l in likesSnap.docs) {
+          await l.reference.delete();
+        }
+      } catch (_) {}
+
+      await postRef.delete();
+
+      return {'success': true, 'message': 'Vent deleted successfully.'};
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to delete vent: $e'};
+    }
+  }
+
   Future<Map<String, dynamic>> createPost({
     required String content,
   }) async {
@@ -194,6 +293,42 @@ class PostService {
         'success': false,
         'message': 'Something went wrong. Please try again.'
       };
+    }
+  }
+
+  // Delete a reply (author only)
+  Future<Map<String, dynamic>> deleteReply({
+    required String postId,
+    required String replyId,
+  }) async {
+    try {
+      final uid = await _getCurrentUserId();
+      if (uid == null) {
+        return {'success': false, 'message': 'You must be logged in to delete.'};
+      }
+
+      final replyRef = _db
+          .collection('posts')
+          .doc(postId)
+          .collection('replies')
+          .doc(replyId);
+
+      final doc = await replyRef.get();
+      if (!doc.exists) {
+        return {'success': false, 'message': 'Reply not found.'};
+      }
+
+      if (doc.data()?['user_id'] != uid) {
+        return {
+          'success': false,
+          'message': 'You can only delete your own replies.'
+        };
+      }
+
+      await replyRef.delete();
+      return {'success': true, 'message': 'Reply deleted successfully.'};
+    } catch (e) {
+      return {'success': false, 'message': 'Failed to delete reply: $e'};
     }
   }
 }

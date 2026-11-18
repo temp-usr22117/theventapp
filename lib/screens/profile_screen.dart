@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/post_model.dart';
+import '../services/post_service.dart';
 import '../services/profile_service.dart';
 import '../utils/avatar_helper.dart';
 import '../utils/responsive.dart';
@@ -13,8 +15,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileService _profileService = ProfileService();
+  final PostService _postService = PostService();
   Map<String, dynamic>? _profile;
+  List<PostModel> _userPosts = [];
   bool _isLoading = true;
+  bool _isLoadingPosts = false;
   bool _isUploadingImage = false;
 
   @override
@@ -26,10 +31,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     setState(() => _isLoading = true);
     final profile = await _profileService.getProfile();
+    if (!mounted) return;
     setState(() {
       _profile = profile;
       _isLoading = false;
     });
+    if (profile != null && profile['id'] != null) {
+      _loadUserPosts(profile['id']);
+    }
+  }
+
+  Future<void> _loadUserPosts(String userId) async {
+    setState(() => _isLoadingPosts = true);
+    final posts = await _postService.getUserPosts(userId);
+    if (!mounted) return;
+    setState(() {
+      _userPosts = posts;
+      _isLoadingPosts = false;
+      if (_profile != null) {
+        _profile!['post_count'] = posts.length;
+      }
+    });
+  }
+
+  String _timeAgo(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
+    if (difference.inSeconds < 60) return 'just now';
+    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
+    if (difference.inHours < 24) return '${difference.inHours}h ago';
+    if (difference.inDays < 7) return '${difference.inDays}d ago';
+    return '${(difference.inDays / 7).floor()}w ago';
+  }
+
+  Future<void> _confirmDeletePost(PostModel post) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A1A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Delete Vent',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this vent? This action cannot be undone.',
+          style: TextStyle(color: Color(0xFF9E9E9E)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF9E9E9E)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Color(0xFFFF4D6D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final result = await _postService.deletePost(post.id);
+      if (!mounted) return;
+      if (result['success'] == true) {
+        _showMessage('Vent deleted successfully');
+        setState(() {
+          _userPosts.removeWhere((p) => p.id == post.id);
+          if (_profile != null && _profile!['post_count'] != null) {
+            final count = (_profile!['post_count'] as int) - 1;
+            _profile!['post_count'] = count < 0 ? 0 : count;
+          }
+        });
+      } else {
+        _showMessage(
+          result['message'] ?? 'Failed to delete vent',
+          isError: true,
+        );
+      }
+    }
   }
 
   void _showImageOptions() {
@@ -257,6 +347,241 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildMyVentsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.auto_stories_rounded,
+              color: Color(0xFF7C4DFF),
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'My Vents',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF262626),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${_userPosts.length}',
+                style: const TextStyle(
+                  color: Color(0xFF9E7BFF),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        if (_isLoadingPosts)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF7C4DFF),
+              ),
+            ),
+          )
+        else if (_userPosts.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF161616),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF262626)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7C4DFF).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.edit_note_rounded,
+                    color: Color(0xFF7C4DFF),
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'No vents yet',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Your anonymous vents and thoughts will appear here.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF8E8E8E),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _userPosts.length,
+            itemBuilder: (context, index) {
+              final post = _userPosts[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161616),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF262626)),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/post-details',
+                        arguments: post,
+                      ).then((_) {
+                        if (_profile != null && _profile!['id'] != null) {
+                          _loadUserPosts(_profile!['id']);
+                        }
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header: Tag, time ago, and Delete button
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color(0xFF7C4DFF).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Text(
+                                  'Your Vent',
+                                  style: TextStyle(
+                                    color: Color(0xFF9E7BFF),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _timeAgo(post.createdAt),
+                                style: const TextStyle(
+                                  color: Color(0xFF8E8E8E),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Color(0xFFFF5277),
+                                  size: 20,
+                                ),
+                                tooltip: 'Delete Vent',
+                                splashRadius: 18,
+                                constraints: const BoxConstraints(),
+                                padding: EdgeInsets.zero,
+                                onPressed: () => _confirmDeletePost(post),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            post.content,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.5,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Icon(
+                                post.isLiked
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                color: post.isLiked
+                                    ? const Color(0xFFFF4D6D)
+                                    : const Color(0xFF8E8E8E),
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${post.likesCount}',
+                                style: const TextStyle(
+                                  color: Color(0xFF8E8E8E),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Row(
+                                children: [
+                                  Text(
+                                    'View Details',
+                                    style: TextStyle(
+                                      color: Color(0xFF7C4DFF),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Color(0xFF7C4DFF),
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -419,7 +744,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
+
+                  // My Vents Section
+                  _buildMyVentsSection(),
+                  const SizedBox(height: 24),
 
                   // About Button
                   SizedBox(
