@@ -10,14 +10,11 @@ void main() {
     tester.view.devicePixelRatio = 2.625;
     addTearDown(() => tester.view.resetPhysicalSize());
 
-    BuildContext? savedContext;
-
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: Builder(
             builder: (context) {
-              savedContext = context;
               return Center(
                 child: ElevatedButton(
                   onPressed: () {
