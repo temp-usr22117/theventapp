@@ -86,11 +86,13 @@ class MoodFilterBar extends StatelessWidget {
 
   final Mood? selected;
   final ValueChanged<Mood?> onChanged;
+  final EdgeInsetsGeometry padding;
 
   const MoodFilterBar({
     super.key,
     required this.selected,
     required this.onChanged,
+    this.padding = const EdgeInsets.fromLTRB(16, 6, 16, 10),
   });
 
   @override
@@ -99,7 +101,7 @@ class MoodFilterBar extends StatelessWidget {
       height: height,
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+        padding: padding,
         children: [
           _MoodChip(
             label: 'All',
