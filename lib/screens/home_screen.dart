@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/mood.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../utils/avatar_helper.dart';
 import '../utils/responsive.dart';
+import '../widgets/mood_widgets.dart';
+import '../widgets/vent_widgets.dart';
+import 'post_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onPostTap;
@@ -17,13 +21,45 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   final PostService _postService = PostService();
+  final ScrollController _scrollController = ScrollController();
   List<PostModel> _posts = [];
   bool _isLoading = true;
+  Mood? _selectedMood;
+
+  List<PostModel> get _visiblePosts => filterPostsByMood(_posts, _selectedMood);
 
   @override
   void initState() {
     super.initState();
     _loadPosts();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _setMoodFilter(Mood? mood) {
+    if (mood == _selectedMood) return;
+    setState(() => _selectedMood = mood);
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
+  }
+
+  PreferredSizeWidget _buildMoodFilterBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(MoodFilterBar.height),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Responsive.feedMaxWidth),
+          child: MoodFilterBar(
+            selected: _selectedMood,
+            onChanged: _setMoodFilter,
+          ),
+        ),
+      ),
+    );
   }
 
   void loadPosts() => _loadPosts();
@@ -80,6 +116,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isWide = Responsive.isWide(context);
     final user = FirebaseAuth.instance.currentUser;
+    final visiblePosts = _visiblePosts;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
@@ -108,6 +145,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 16),
               ],
+              bottom: _buildMoodFilterBar(),
             )
           : AppBar(
               backgroundColor: const Color(0xFF0D0D0D),
@@ -151,6 +189,7 @@ class HomeScreenState extends State<HomeScreen> {
                   onPressed: _loadPosts,
                 ),
               ],
+              bottom: _buildMoodFilterBar(),
             ),
       body: Center(
         child: ConstrainedBox(
@@ -214,26 +253,79 @@ class HomeScreenState extends State<HomeScreen> {
                       onRefresh: _loadPosts,
                       color: const Color(0xFF7C4DFF),
                       child: ListView.builder(
+                        controller: _scrollController,
+                        // Keep pull-to-refresh working when a filter leaves
+                        // only a few (or no) items on screen.
+                        physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           16,
                           12,
                           16,
                           isWide ? 32 : 100, // bottom padding for mobile bar
                         ),
-                        itemCount: _posts.length + (isWide ? 1 : 0),
+                        itemCount: (visiblePosts.isEmpty ? 1 : visiblePosts.length) +
+                            (isWide ? 1 : 0),
                         itemBuilder: (context, index) {
                           // Top "What's on your mind" card on desktop/wide screen
                           if (isWide && index == 0) {
                             return _buildQuickCreateVentCard(user);
                           }
 
+                          if (visiblePosts.isEmpty) {
+                            return _buildNoMoodMatches();
+                          }
+
                           final postIndex = isWide ? index - 1 : index;
-                          final post = _posts[postIndex];
+                          final post = visiblePosts[postIndex];
                           return _buildPostCard(post);
                         },
                       ),
                     ),
         ),
+      ),
+    );
+  }
+
+  /// Shown when the active mood filter matches none of the loaded vents.
+  Widget _buildNoMoodMatches() {
+    final mood = _selectedMood;
+    return Padding(
+      padding: const EdgeInsets.only(top: 64),
+      child: Column(
+        children: [
+          Icon(
+            mood?.icon ?? Icons.filter_alt_off_rounded,
+            color: mood?.color ?? const Color(0xFF9E9E9E),
+            size: 56,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No ${mood?.label.toLowerCase() ?? ''} vents yet',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF9E9E9E),
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Try another mood, or share how you feel.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
+          ),
+          const SizedBox(height: 20),
+          TextButton(
+            onPressed: () => _setMoodFilter(null),
+            child: const Text(
+              'Show all vents',
+              style: TextStyle(
+                color: Color(0xFF9E7BFF),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -327,7 +419,15 @@ class HomeScreenState extends State<HomeScreen> {
       },
       onLikeTap: () => _toggleLike(post),
       onDeleteTap: () => _confirmDeletePost(post),
+      onEditTap: () => _editPost(post),
+      onMoodTap: post.mood == null ? null : () => _setMoodFilter(post.mood),
     );
+  }
+
+  Future<void> _editPost(PostModel post) async {
+    final saved = await PostScreen.openEditor(context, post);
+    // The post is updated in place; just rebuild (and re-apply the filter).
+    if (saved && mounted) setState(() {});
   }
 
   Future<void> _confirmDeletePost(PostModel post) async {
@@ -404,6 +504,8 @@ class _HoverablePostCard extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
+  final VoidCallback? onEditTap;
+  final VoidCallback? onMoodTap;
 
   const _HoverablePostCard({
     required this.post,
@@ -411,6 +513,8 @@ class _HoverablePostCard extends StatefulWidget {
     required this.onTap,
     required this.onLikeTap,
     this.onDeleteTap,
+    this.onEditTap,
+    this.onMoodTap,
   });
 
   @override
@@ -473,12 +577,16 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              post.username,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                            Flexible(
+                              child: Text(
+                                post.username,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -501,29 +609,36 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                           ],
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'Anonymous Member',
-                          style: TextStyle(
-                            color: Color(0xFF6E6E6E),
-                            fontSize: 11,
-                          ),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            const Text(
+                              'Anonymous Member',
+                              style: TextStyle(
+                                color: Color(0xFF6E6E6E),
+                                fontSize: 11,
+                              ),
+                            ),
+                            if (post.editedAt != null)
+                              EditedBadge(editedAt: post.editedAt!),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  if (FirebaseAuth.instance.currentUser?.uid == post.userId)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: Color(0xFF8E8E8E),
-                        size: 20,
-                      ),
-                      tooltip: 'Delete your vent',
-                      splashRadius: 18,
-                      constraints: const BoxConstraints(),
-                      padding: EdgeInsets.zero,
-                      onPressed: widget.onDeleteTap,
+                  if (post.mood != null) ...[
+                    const SizedBox(width: 8),
+                    MoodBadge(mood: post.mood!, onTap: widget.onMoodTap),
+                  ],
+                  if (FirebaseAuth.instance.currentUser?.uid == post.userId) ...[
+                    const SizedBox(width: 4),
+                    VentOwnerMenu(
+                      onEdit: () => widget.onEditTap?.call(),
+                      onDelete: () => widget.onDeleteTap?.call(),
                     ),
+                  ],
                 ],
               ),
               const SizedBox(height: 14),

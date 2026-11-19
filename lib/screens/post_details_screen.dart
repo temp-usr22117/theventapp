@@ -4,6 +4,9 @@ import '../models/post_model.dart';
 import '../models/reply_model.dart';
 import '../services/post_service.dart';
 import '../utils/avatar_helper.dart';
+import '../widgets/mood_widgets.dart';
+import '../widgets/vent_widgets.dart';
+import 'post_screen.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final PostModel post;
@@ -123,6 +126,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     return '${(difference.inDays / 7).floor()}w ago';
   }
 
+  Future<void> _editPost() async {
+    final saved = await PostScreen.openEditor(context, widget.post);
+    if (saved && mounted) setState(() {});
+  }
+
   Future<void> _confirmDeletePost() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -240,6 +248,15 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           if (FirebaseAuth.instance.currentUser?.uid == widget.post.userId)
             IconButton(
               icon: const Icon(
+                Icons.edit_outlined,
+                color: Color(0xFFBDBDBD),
+              ),
+              tooltip: 'Edit Vent',
+              onPressed: _editPost,
+            ),
+          if (FirebaseAuth.instance.currentUser?.uid == widget.post.userId)
+            IconButton(
+              icon: const Icon(
                 Icons.delete_outline_rounded,
                 color: Color(0xFFFF5277),
               ),
@@ -284,26 +301,46 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                             iconSize: 22,
                           ),
                           const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.post.username,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.post.username,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                _timeAgo(widget.post.createdAt),
-                                style: const TextStyle(
-                                  color: Color(0xFF9E9E9E),
-                                  fontSize: 12,
+                                const SizedBox(height: 2),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      _timeAgo(widget.post.createdAt),
+                                      style: const TextStyle(
+                                        color: Color(0xFF9E9E9E),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    if (widget.post.editedAt != null)
+                                      EditedBadge(
+                                        editedAt: widget.post.editedAt!,
+                                      ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          if (widget.post.mood != null) ...[
+                            const SizedBox(width: 8),
+                            MoodBadge(mood: widget.post.mood!),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 14),

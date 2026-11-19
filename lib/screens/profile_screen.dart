@@ -4,7 +4,10 @@ import '../services/post_service.dart';
 import '../services/profile_service.dart';
 import '../utils/avatar_helper.dart';
 import '../utils/responsive.dart';
+import '../widgets/mood_widgets.dart';
+import '../widgets/vent_widgets.dart';
 import 'about_screen.dart';
+import 'post_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -61,6 +64,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (difference.inHours < 24) return '${difference.inHours}h ago';
     if (difference.inDays < 7) return '${difference.inDays}d ago';
     return '${(difference.inDays / 7).floor()}w ago';
+  }
+
+  Future<void> _editPost(PostModel post) async {
+    final saved = await PostScreen.openEditor(context, post);
+    if (saved && mounted) setState(() {});
   }
 
   Future<void> _confirmDeletePost(PostModel post) async {
@@ -474,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header: Tag, time ago, and Delete button
+                          // Header: Tag, time ago, and Edit/Delete menu
                           Row(
                             children: [
                               Container(
@@ -496,26 +504,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
+                              if (post.mood != null) ...[
+                                const SizedBox(width: 6),
+                                MoodBadge(mood: post.mood!),
+                              ],
                               const SizedBox(width: 8),
-                              Text(
-                                _timeAgo(post.createdAt),
-                                style: const TextStyle(
-                                  color: Color(0xFF8E8E8E),
-                                  fontSize: 12,
+                              Flexible(
+                                child: Text(
+                                  _timeAgo(post.createdAt),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Color(0xFF8E8E8E),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                               const Spacer(),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Color(0xFFFF5277),
-                                  size: 20,
-                                ),
-                                tooltip: 'Delete Vent',
-                                splashRadius: 18,
-                                constraints: const BoxConstraints(),
-                                padding: EdgeInsets.zero,
-                                onPressed: () => _confirmDeletePost(post),
+                              VentOwnerMenu(
+                                onEdit: () => _editPost(post),
+                                onDelete: () => _confirmDeletePost(post),
                               ),
                             ],
                           ),
@@ -549,6 +556,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (post.editedAt != null) ...[
+                                const SizedBox(width: 12),
+                                EditedBadge(editedAt: post.editedAt!),
+                              ],
                               const Spacer(),
                               const Row(
                                 children: [

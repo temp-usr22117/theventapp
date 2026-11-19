@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/mood.dart';
 import '../models/post_model.dart';
 import '../models/reply_model.dart';
 
@@ -16,6 +17,9 @@ class PostService {
     final doc = await _db.collection('users').doc(uid).get();
     return doc.data();
   }
+
+  String? _isoOrNull(dynamic value) =>
+      value is Timestamp ? value.toDate().toIso8601String() : null;
 
   Future<List<PostModel>> getPosts() async {
     try {
@@ -53,6 +57,8 @@ class PostService {
             'user_id': data['user_id'] ?? '',
             'likes_count': data['likes_count'] ?? 0,
             'created_at': createdAt,
+            'mood': data['mood'],
+            'edited_at': _isoOrNull(data['edited_at']),
             'users': {
               'username': data['username'] ?? 'Unknown',
               'profile_picture_url': data['profile_picture_url'],
@@ -105,6 +111,8 @@ class PostService {
             'user_id': data['user_id'] ?? '',
             'likes_count': data['likes_count'] ?? 0,
             'created_at': createdAt,
+            'mood': data['mood'],
+            'edited_at': _isoOrNull(data['edited_at']),
             'users': {
               'username': data['username'] ?? 'Unknown',
               'profile_picture_url': data['profile_picture_url'],
@@ -167,8 +175,46 @@ class PostService {
     }
   }
 
+  // Edit a post's content / mood and stamp it as edited (author only)
+  Future<Map<String, dynamic>> updatePost({
+    required String postId,
+    required String content,
+    Mood? mood,
+  }) async {
+    try {
+      final uid = await _getCurrentUserId();
+      if (uid == null) {
+        return {'success': false, 'message': 'You must be logged in to edit.'};
+      }
+
+      final postRef = _db.collection('posts').doc(postId);
+      final doc = await postRef.get();
+      if (!doc.exists) {
+        return {'success': false, 'message': 'Vent not found.'};
+      }
+
+      if (doc.data()?['user_id'] != uid) {
+        return {'success': false, 'message': 'You can only edit your own vents.'};
+      }
+
+      await postRef.update({
+        'content': content,
+        'mood': mood?.key ?? FieldValue.delete(),
+        'edited_at': FieldValue.serverTimestamp(),
+      });
+
+      return {'success': true, 'message': 'Vent updated.'};
+    } catch (_) {
+      return {
+        'success': false,
+        'message': 'Could not update vent. Please try again.'
+      };
+    }
+  }
+
   Future<Map<String, dynamic>> createPost({
     required String content,
+    Mood? mood,
   }) async {
     try {
       final uid = await _getCurrentUserId();
@@ -188,6 +234,7 @@ class PostService {
         'content': content,
         'likes_count': 0,
         'created_at': FieldValue.serverTimestamp(),
+        if (mood != null) 'mood': mood.key,
       });
 
       return {'success': true, 'message': 'Vent posted successfully!'};
