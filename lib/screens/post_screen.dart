@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import '../models/mood.dart';
+import '../models/post_model.dart';
 import '../services/post_service.dart';
+import '../widgets/mood_widgets.dart';
 
 class PostScreen extends StatefulWidget {
-  const PostScreen({super.key});
+  /// When set, the screen edits this vent instead of creating a new one.
+  final PostModel? editingPost;
+
+  const PostScreen({super.key, this.editingPost});
+
+  /// Opens the editor for [post]. Resolves to true if the vent was saved;
+  /// [post] is updated in place so callers only need to rebuild.
+  static Future<bool> openEditor(BuildContext context, PostModel post) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => PostScreen(editingPost: post)),
+    );
+    return saved == true;
+  }
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -14,6 +30,20 @@ class _PostScreenState extends State<PostScreen> {
   bool _isLoading = false;
   int _charCount = 0;
   final int _maxChars = 500;
+  Mood? _selectedMood;
+
+  bool get _isEditing => widget.editingPost != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final post = widget.editingPost;
+    if (post != null) {
+      _contentController.text = post.content;
+      _charCount = post.content.length;
+      _selectedMood = post.mood;
+    }
+  }
 
   @override
   void dispose() {
@@ -34,9 +64,17 @@ class _PostScreenState extends State<PostScreen> {
       return;
     }
 
+    if (_isEditing) {
+      await _saveEdit(content);
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final result = await _postService.createPost(content: content);
+    final result = await _postService.createPost(
+      content: content,
+      mood: _selectedMood,
+    );
 
     setState(() => _isLoading = false);
 
@@ -44,6 +82,37 @@ class _PostScreenState extends State<PostScreen> {
       _showMessage('Vent posted successfully!');
       await Future.delayed(const Duration(seconds: 1));
       if (mounted) Navigator.pop(context);
+    } else {
+      _showMessage(result['message']);
+    }
+  }
+
+  Future<void> _saveEdit(String content) async {
+    final post = widget.editingPost!;
+
+    if (content == post.content && _selectedMood == post.mood) {
+      _showMessage('No changes to save');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await _postService.updatePost(
+      postId: post.id,
+      content: content,
+      mood: _selectedMood,
+    );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result['success'] == true) {
+      post
+        ..content = content
+        ..mood = _selectedMood
+        ..editedAt = DateTime.now();
+      _showMessage('Vent updated');
+      Navigator.pop(context, true);
     } else {
       _showMessage(result['message']);
     }
@@ -76,9 +145,9 @@ class _PostScreenState extends State<PostScreen> {
             color: Colors.white,
           ),
         ),
-        title: const Text(
-          'New Vent',
-          style: TextStyle(
+        title: Text(
+          _isEditing ? 'Edit Vent' : 'New Vent',
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -105,9 +174,9 @@ class _PostScreenState extends State<PostScreen> {
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text(
-                      'Post',
-                      style: TextStyle(
+                  : Text(
+                      _isEditing ? 'Save' : 'Post',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -155,6 +224,22 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 20),
+
+                // Mood picker (optional)
+                const Text(
+                  'How are you feeling? (optional)',
+                  style: TextStyle(
+                    color: Color(0xFFBDBDBD),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                MoodSelector(
+                  selected: _selectedMood,
+                  onChanged: (mood) => setState(() => _selectedMood = mood),
                 ),
                 const SizedBox(height: 20),
 
