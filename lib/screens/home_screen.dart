@@ -5,7 +5,9 @@ import '../models/mood.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../utils/avatar_helper.dart';
+import '../utils/feed_query.dart';
 import '../utils/responsive.dart';
+import '../widgets/feed_controls.dart';
 import '../widgets/mood_widgets.dart';
 import '../widgets/vent_widgets.dart';
 import 'post_screen.dart';
@@ -22,11 +24,28 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final PostService _postService = PostService();
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   List<PostModel> _posts = [];
   bool _isLoading = true;
   Mood? _selectedMood;
+  FeedSort _sort = FeedSort.latest;
+  bool _isSearching = false;
+  String _query = '';
 
-  List<PostModel> get _visiblePosts => filterPostsByMood(_posts, _selectedMood);
+  /// Filtered + sorted view of [_posts]. Recomputed only when the feed or the
+  /// query changes (not on likes), so cards don't jump around in "Top".
+  List<PostModel> _visiblePosts = [];
+
+  void _refreshVisible() {
+    _visiblePosts = applyFeedQuery(
+      _posts,
+      mood: _selectedMood,
+      query: _query,
+      sort: _sort,
+    );
+  }
+
+  bool get _hasActiveFilters => _query.trim().isNotEmpty || _selectedMood != null;
 
   @override
   void initState() {
@@ -37,28 +56,132 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
   }
 
   void _setMoodFilter(Mood? mood) {
     if (mood == _selectedMood) return;
-    setState(() => _selectedMood = mood);
-    if (_scrollController.hasClients) _scrollController.jumpTo(0);
+    setState(() {
+      _selectedMood = mood;
+      _refreshVisible();
+    });
+    _scrollToTop();
   }
 
-  PreferredSizeWidget _buildMoodFilterBar() {
+  void _setSort(FeedSort sort) {
+    if (sort == _sort) return;
+    setState(() {
+      _sort = sort;
+      _refreshVisible();
+    });
+    _scrollToTop();
+  }
+
+  void _setQuery(String query) {
+    setState(() {
+      _query = query;
+      _refreshVisible();
+    });
+    _scrollToTop();
+  }
+
+  void _openSearch() => setState(() => _isSearching = true);
+
+  void _closeSearch() {
+    _searchController.clear();
+    setState(() {
+      _isSearching = false;
+      _query = '';
+      _refreshVisible();
+    });
+  }
+
+  void _clearFilters() {
+    _searchController.clear();
+    setState(() {
+      _query = '';
+      _selectedMood = null;
+      _refreshVisible();
+    });
+    _scrollToTop();
+  }
+
+  PreferredSizeWidget _buildFeedControls() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(MoodFilterBar.height),
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: Responsive.feedMaxWidth),
-          child: MoodFilterBar(
-            selected: _selectedMood,
-            onChanged: _setMoodFilter,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 6, 0, 10),
+                child: FeedSortToggle(value: _sort, onChanged: _setSort),
+              ),
+              Expanded(
+                child: MoodFilterBar(
+                  selected: _selectedMood,
+                  onChanged: _setMoodFilter,
+                  padding: const EdgeInsets.fromLTRB(10, 6, 16, 10),
+                ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildSearchAppBar() {
+    return AppBar(
+      backgroundColor: const Color(0xFF0D0D0D),
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+        tooltip: 'Close search',
+        onPressed: _closeSearch,
+      ),
+      titleSpacing: 0,
+      title: TextField(
+        controller: _searchController,
+        autofocus: true,
+        textInputAction: TextInputAction.search,
+        cursorColor: const Color(0xFF7C4DFF),
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+        decoration: const InputDecoration(
+          hintText: 'Search vents by keyword...',
+          hintStyle: TextStyle(color: Color(0xFF8E8E8E), fontSize: 16),
+          border: InputBorder.none,
+        ),
+        onChanged: _setQuery,
+      ),
+      actions: [
+        if (_query.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.close_rounded, color: Color(0xFF9E9E9E)),
+            tooltip: 'Clear search',
+            onPressed: () {
+              _searchController.clear();
+              _setQuery('');
+            },
+          ),
+        const SizedBox(width: 8),
+      ],
+      bottom: _buildFeedControls(),
+    );
+  }
+
+  Widget _searchButton() {
+    return IconButton(
+      icon: const Icon(Icons.search_rounded, color: Color(0xFF9E9E9E)),
+      tooltip: 'Search vents',
+      onPressed: _openSearch,
     );
   }
 
@@ -71,6 +194,7 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       _posts = posts;
       _isLoading = false;
+      _refreshVisible();
     });
   }
 
@@ -118,9 +242,17 @@ class HomeScreenState extends State<HomeScreen> {
     final user = FirebaseAuth.instance.currentUser;
     final visiblePosts = _visiblePosts;
 
-    return Scaffold(
+    return PopScope(
+      // Android back closes the search before leaving the feed.
+      canPop: !_isSearching,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _isSearching) _closeSearch();
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFF0D0D0D),
-      appBar: isWide
+      appBar: _isSearching
+          ? _buildSearchAppBar()
+          : isWide
           ? AppBar(
               backgroundColor: const Color(0xFF0D0D0D),
               elevation: 0,
@@ -135,6 +267,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               actions: [
+                _searchButton(),
                 IconButton(
                   icon: const Icon(
                     Icons.refresh_rounded,
@@ -145,7 +278,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 16),
               ],
-              bottom: _buildMoodFilterBar(),
+              bottom: _buildFeedControls(),
             )
           : AppBar(
               backgroundColor: const Color(0xFF0D0D0D),
@@ -180,6 +313,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               actions: [
+                _searchButton(),
                 IconButton(
                   icon: const Icon(
                     Icons.refresh_rounded,
@@ -189,7 +323,7 @@ class HomeScreenState extends State<HomeScreen> {
                   onPressed: _loadPosts,
                 ),
               ],
-              bottom: _buildMoodFilterBar(),
+              bottom: _buildFeedControls(),
             ),
       body: Center(
         child: ConstrainedBox(
@@ -272,7 +406,7 @@ class HomeScreenState extends State<HomeScreen> {
                           }
 
                           if (visiblePosts.isEmpty) {
-                            return _buildNoMoodMatches();
+                            return _buildNoMatches();
                           }
 
                           final postIndex = isWide ? index - 1 : index;
@@ -283,24 +417,34 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
         ),
       ),
+      ),
     );
   }
 
-  /// Shown when the active mood filter matches none of the loaded vents.
-  Widget _buildNoMoodMatches() {
+  /// Shown when the active search / mood filter matches none of the vents.
+  Widget _buildNoMatches() {
     final mood = _selectedMood;
+    final query = _query.trim();
+    final moodSuffix = mood == null ? '' : ' in ${mood.label}';
+
     return Padding(
       padding: const EdgeInsets.only(top: 64),
       child: Column(
         children: [
           Icon(
-            mood?.icon ?? Icons.filter_alt_off_rounded,
-            color: mood?.color ?? const Color(0xFF9E9E9E),
+            query.isNotEmpty
+                ? Icons.search_off_rounded
+                : mood?.icon ?? Icons.filter_alt_off_rounded,
+            color: query.isEmpty && mood != null
+                ? mood.color
+                : const Color(0xFF9E9E9E),
             size: 56,
           ),
           const SizedBox(height: 16),
           Text(
-            'No ${mood?.label.toLowerCase() ?? ''} vents yet',
+            query.isNotEmpty
+                ? 'No vents match "$query"$moodSuffix'
+                : 'No ${mood?.label.toLowerCase() ?? ''} vents yet',
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFF9E9E9E),
@@ -309,22 +453,26 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Try another mood, or share how you feel.',
+          Text(
+            query.isNotEmpty
+                ? 'Try different keywords.'
+                : 'Try another mood, or share how you feel.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
+            style: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
           ),
-          const SizedBox(height: 20),
-          TextButton(
-            onPressed: () => _setMoodFilter(null),
-            child: const Text(
-              'Show all vents',
-              style: TextStyle(
-                color: Color(0xFF9E7BFF),
-                fontWeight: FontWeight.bold,
+          if (_hasActiveFilters) ...[
+            const SizedBox(height: 20),
+            TextButton(
+              onPressed: _clearFilters,
+              child: const Text(
+                'Show all vents',
+                style: TextStyle(
+                  color: Color(0xFF9E7BFF),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -408,6 +556,7 @@ class HomeScreenState extends State<HomeScreen> {
     return _HoverablePostCard(
       post: post,
       timeAgo: _timeAgo(post.createdAt),
+      highlightTerms: searchTerms(_query),
       onTap: () {
         Navigator.pushNamed(
           context,
@@ -427,7 +576,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _editPost(PostModel post) async {
     final saved = await PostScreen.openEditor(context, post);
     // The post is updated in place; just rebuild (and re-apply the filter).
-    if (saved && mounted) setState(() {});
+    if (saved && mounted) setState(_refreshVisible);
   }
 
   Future<void> _confirmDeletePost(PostModel post) async {
@@ -471,6 +620,7 @@ class HomeScreenState extends State<HomeScreen> {
       if (result['success'] == true) {
         setState(() {
           _posts.removeWhere((p) => p.id == post.id);
+          _refreshVisible();
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -501,6 +651,7 @@ class HomeScreenState extends State<HomeScreen> {
 class _HoverablePostCard extends StatefulWidget {
   final PostModel post;
   final String timeAgo;
+  final List<String> highlightTerms;
   final VoidCallback onTap;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
@@ -510,6 +661,7 @@ class _HoverablePostCard extends StatefulWidget {
   const _HoverablePostCard({
     required this.post,
     required this.timeAgo,
+    this.highlightTerms = const [],
     required this.onTap,
     required this.onLikeTap,
     this.onDeleteTap,
@@ -644,8 +796,20 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
               const SizedBox(height: 14),
 
               // Post Content with Human-Readable Typography
-              Text(
-                post.content,
+              // (search keywords are highlighted while searching)
+              Text.rich(
+                TextSpan(
+                  children: highlightMatches(
+                    post.content,
+                    widget.highlightTerms,
+                    TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      backgroundColor:
+                          const Color(0xFF7C4DFF).withValues(alpha: 0.35),
+                    ),
+                  ),
+                ),
                 style: const TextStyle(
                   color: Color(0xFFE4E4E4),
                   fontSize: 15,
