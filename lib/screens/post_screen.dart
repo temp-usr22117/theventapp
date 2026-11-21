@@ -3,6 +3,7 @@ import '../models/mood.dart';
 import '../models/post_model.dart';
 import '../services/post_service.dart';
 import '../widgets/mood_widgets.dart';
+import '../theme/app_colors.dart';
 
 class PostScreen extends StatefulWidget {
   /// When set, the screen edits this vent instead of creating a new one.
@@ -122,7 +123,7 @@ class _PostScreenState extends State<PostScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFF2C2C2C),
+        backgroundColor: AppColors.surfaceHigh,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -134,21 +135,21 @@ class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         title: Text(
           _isEditing ? 'Edit Vent' : 'New Vent',
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -160,7 +161,7 @@ class _PostScreenState extends State<PostScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _submitPost,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C4DFF),
+                backgroundColor: AppColors.accent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -170,14 +171,14 @@ class _PostScreenState extends State<PostScreen> {
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
-                        color: Colors.white,
+                        color: AppColors.onAccent,
                         strokeWidth: 2,
                       ),
                     )
                   : Text(
                       _isEditing ? 'Save' : 'Post',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.onAccent,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -201,24 +202,24 @@ class _PostScreenState extends State<PostScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: AppColors.surfaceRaised,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: const Color(0xFF7C4DFF).withOpacity(0.3),
+                      color: AppColors.accent.withOpacity(0.3),
                     ),
                   ),
                   child: const Row(
                     children: [
                       Icon(
                         Icons.lock_outline,
-                        color: Color(0xFF7C4DFF),
+                        color: AppColors.accent,
                         size: 16,
                       ),
                       SizedBox(width: 8),
                       Text(
                         'Your vent is anonymous. Speak freely.',
                         style: TextStyle(
-                          color: Color(0xFF9E9E9E),
+                          color: AppColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -231,7 +232,7 @@ class _PostScreenState extends State<PostScreen> {
                 const Text(
                   'How are you feeling? (optional)',
                   style: TextStyle(
-                    color: Color(0xFFBDBDBD),
+                    color: AppColors.textSecondary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -251,18 +252,18 @@ class _PostScreenState extends State<PostScreen> {
                     expands: true,
                     maxLength: _maxChars,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 16,
                       height: 1.6,
                     ),
                     decoration: InputDecoration(
                       hintText: "What's on your mind? Let it out...",
                       hintStyle: const TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textSecondary,
                         fontSize: 16,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF1A1A1A),
+                      fillColor: AppColors.surfaceRaised,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -270,12 +271,12 @@ class _PostScreenState extends State<PostScreen> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: Color(0xFF7C4DFF),
+                          color: AppColors.accent,
                           width: 1.5,
                         ),
                       ),
                       counterStyle: const TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textSecondary,
                       ),
                       alignLabelWithHint: true,
                       contentPadding: const EdgeInsets.all(16),

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_colors.dart';
 
 /// A modern, Telegram and Google Photos-inspired floating bottom navigation bar.
 ///
@@ -117,10 +118,10 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
                   child: Container(
                     height: 66,
                     decoration: BoxDecoration(
-                      color: const Color(0xEB181818),
+                      color: AppColors.navBar,
                       borderRadius: BorderRadius.circular(36),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.12),
+                        color: AppColors.textPrimary.withValues(alpha: 0.12),
                         width: 1.2,
                       ),
                       boxShadow: [
@@ -131,7 +132,7 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
                           spreadRadius: 2,
                         ),
                         BoxShadow(
-                          color: const Color(0xFF7C4DFF).withValues(alpha: 0.15),
+                          color: AppColors.shadow.withValues(alpha: 0.15),
                           blurRadius: 20,
                           offset: const Offset(0, 2),
                         ),
@@ -152,10 +153,10 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
                           width: itemWidth - 12.0,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF7C4DFF).withValues(alpha: 0.18),
+                              color: AppColors.accent.withValues(alpha: 0.18),
                               borderRadius: BorderRadius.circular(26),
                               border: Border.all(
-                                color: const Color(0xFF7C4DFF).withValues(alpha: 0.4),
+                                color: AppColors.accent.withValues(alpha: 0.4),
                                 width: 1.0,
                               ),
                             ),
@@ -226,12 +227,12 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
     required VoidCallback onTap,
   }) {
     final effectiveActive = isSelected || isHovered;
-    final color = effectiveActive ? const Color(0xFF9E7BFF) : const Color(0xFF9E9E9E);
+    final color = effectiveActive ? AppColors.accentLight : AppColors.textSecondary;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(26),
-      splashColor: const Color(0xFF7C4DFF).withValues(alpha: 0.1),
+      splashColor: AppColors.accent.withValues(alpha: 0.1),
       highlightColor: Colors.transparent,
       child: Center(
         child: Column(
@@ -244,7 +245,7 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
               curve: Curves.easeOutBack,
               child: Icon(
                 effectiveActive ? activeIcon : icon,
-                color: effectiveActive ? Colors.white : color,
+                color: effectiveActive ? AppColors.textPrimary : color,
                 size: 23,
               ),
             ),
@@ -252,7 +253,7 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
-                color: effectiveActive ? Colors.white : color,
+                color: effectiveActive ? AppColors.textPrimary : color,
                 fontSize: 11,
                 fontWeight: effectiveActive ? FontWeight.w700 : FontWeight.w500,
                 letterSpacing: 0.3,
@@ -284,23 +285,15 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF9569FF),
-                  Color(0xFF7C4DFF),
-                  Color(0xFF673AB7),
-                ],
-              ),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25),
+                color: AppColors.textPrimary.withValues(alpha: 0.25),
                 width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF7C4DFF).withValues(alpha: 0.45),
+                  color: AppColors.shadow.withValues(alpha: 0.45),
                   blurRadius: 14,
                   offset: const Offset(0, 3),
                   spreadRadius: 1,
@@ -312,14 +305,14 @@ class _ModernFloatingNavBarState extends State<ModernFloatingNavBar>
               children: [
                 Icon(
                   Icons.add_rounded,
-                  color: Colors.white,
+                  color: AppColors.onAccent,
                   size: 20,
                 ),
                 SizedBox(width: 4),
                 Text(
                   'Post',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.onAccent,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,

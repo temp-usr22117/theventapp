@@ -7,6 +7,7 @@ import '../utils/avatar_helper.dart';
 import '../widgets/mood_widgets.dart';
 import '../widgets/vent_widgets.dart';
 import 'post_screen.dart';
+import '../theme/app_colors.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final PostModel post;
@@ -108,7 +109,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFF2C2C2C),
+        backgroundColor: AppColors.surfaceHigh,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -135,28 +136,28 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: AppColors.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: const Text(
           'Delete Vent',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
         ),
         content: const Text(
           'Are you sure you want to delete this vent? This action cannot be undone.',
-          style: TextStyle(color: Color(0xFF9E9E9E)),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
               'Delete',
-              style: TextStyle(color: Color(0xFFFF4D6D), fontWeight: FontWeight.bold),
+              style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -178,28 +179,28 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: AppColors.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: const Text(
           'Delete Reply',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
         ),
         content: const Text(
           'Are you sure you want to delete this reply?',
-          style: TextStyle(color: Color(0xFF9E9E9E)),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
               'Delete',
-              style: TextStyle(color: Color(0xFFFF4D6D), fontWeight: FontWeight.bold),
+              style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -225,21 +226,21 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         title: const Text(
           'Vent',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -249,7 +250,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             IconButton(
               icon: const Icon(
                 Icons.edit_outlined,
-                color: Color(0xFFBDBDBD),
+                color: AppColors.textSecondary,
               ),
               tooltip: 'Edit Vent',
               onPressed: _editPost,
@@ -258,7 +259,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             IconButton(
               icon: const Icon(
                 Icons.delete_outline_rounded,
-                color: Color(0xFFFF5277),
+                color: AppColors.danger,
               ),
               tooltip: 'Delete Vent',
               onPressed: _confirmDeletePost,
@@ -281,10 +282,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1A1A),
+                    color: AppColors.surfaceRaised,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFF2C2C2C),
+                      color: AppColors.border,
                     ),
                   ),
                   child: Column(
@@ -296,7 +297,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                           UserAvatar(
                             imageUrl: widget.post.profilePictureUrl,
                             radius: 22,
-                            backgroundColor: const Color(0xFF2C2C2C),
+                            backgroundColor: AppColors.surfaceHigh,
                             fallbackIcon: Icons.person_outline,
                             iconSize: 22,
                           ),
@@ -310,7 +311,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
                                   ),
@@ -324,7 +325,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                     Text(
                                       _timeAgo(widget.post.createdAt),
                                       style: const TextStyle(
-                                        color: Color(0xFF9E9E9E),
+                                        color: AppColors.textSecondary,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -349,7 +350,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       Text(
                         widget.post.content,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 15,
                           height: 1.6,
                         ),
@@ -366,8 +367,8 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                   ? Icons.favorite
                                   : Icons.favorite_border,
                               color: widget.post.isLiked
-                                  ? const Color(0xFFFF4D6D)
-                                  : const Color(0xFF9E9E9E),
+                                  ? AppColors.like
+                                  : AppColors.textSecondary,
                               size: 22,
                             ),
                             const SizedBox(width: 6),
@@ -375,8 +376,8 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                               '$_likesCount',
                               style: TextStyle(
                                 color: widget.post.isLiked
-                                    ? const Color(0xFFFF4D6D)
-                                    : const Color(0xFF9E9E9E),
+                                    ? AppColors.like
+                                    : AppColors.textSecondary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -395,7 +396,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     const Text(
                       'Replies',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -407,13 +408,13 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7C4DFF).withOpacity(0.2),
+                        color: AppColors.accent.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         '${_replies.length}',
                         style: const TextStyle(
-                          color: Color(0xFF7C4DFF),
+                          color: AppColors.accent,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -429,7 +430,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: CircularProgressIndicator(
-                        color: Color(0xFF7C4DFF),
+                        color: AppColors.accent,
                       ),
                     ),
                   )
@@ -440,7 +441,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       child: Text(
                         'No replies yet. Be the first to reply!',
                         style: TextStyle(
-                          color: Color(0xFF9E9E9E),
+                          color: AppColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -453,10 +454,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A1A1A),
+                        color: AppColors.surfaceRaised,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFF2C2C2C),
+                          color: AppColors.border,
                         ),
                       ),
                       child: Column(
@@ -468,7 +469,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                               UserAvatar(
                                 imageUrl: reply.profilePictureUrl,
                                 radius: 16,
-                                backgroundColor: const Color(0xFF2C2C2C),
+                                backgroundColor: AppColors.surfaceHigh,
                                 fallbackIcon: Icons.person_outline,
                                 iconSize: 16,
                               ),
@@ -479,7 +480,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                   Text(
                                     reply.username,
                                     style: const TextStyle(
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
                                     ),
@@ -487,7 +488,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                   Text(
                                     _timeAgo(reply.createdAt),
                                     style: const TextStyle(
-                                      color: Color(0xFF9E9E9E),
+                                      color: AppColors.textSecondary,
                                       fontSize: 11,
                                     ),
                                   ),
@@ -499,7 +500,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                                 IconButton(
                                   icon: const Icon(
                                     Icons.delete_outline_rounded,
-                                    color: Color(0xFFFF5277),
+                                    color: AppColors.danger,
                                     size: 18,
                                   ),
                                   tooltip: 'Delete Reply',
@@ -516,7 +517,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                           Text(
                             reply.content,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 14,
                               height: 1.5,
                             ),
@@ -538,10 +539,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
               bottom: 12,
             ),
             decoration: const BoxDecoration(
-              color: Color(0xFF1A1A1A),
+              color: AppColors.surfaceRaised,
               border: Border(
                 top: BorderSide(
-                  color: Color(0xFF2C2C2C),
+                  color: AppColors.border,
                   width: 1,
                 ),
               ),
@@ -553,17 +554,17 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   child: TextField(
                     controller: _replyController,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 14,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Write a reply...',
                       hintStyle: const TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF2C2C2C),
+                      fillColor: AppColors.surfaceHigh,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide.none,
@@ -571,7 +572,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: const BorderSide(
-                          color: Color(0xFF7C4DFF),
+                          color: AppColors.accent,
                           width: 1.5,
                         ),
                       ),
@@ -590,7 +591,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF7C4DFF),
+                      color: AppColors.accent,
                       shape: BoxShape.circle,
                     ),
                     child: _isSubmittingReply
@@ -598,13 +599,13 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: AppColors.onAccent,
                               strokeWidth: 2,
                             ),
                           )
                         : const Icon(
                             Icons.send,
-                            color: Colors.white,
+                            color: AppColors.onAccent,
                             size: 18,
                           ),
                   ),

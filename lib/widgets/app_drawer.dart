@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/avatar_helper.dart';
+import '../theme/app_colors.dart';
 
 class AppDrawer extends StatelessWidget {
   final int currentIndex;
@@ -27,7 +28,7 @@ class AppDrawer extends StatelessWidget {
     final email = user?.email ?? '';
 
     return Drawer(
-      backgroundColor: const Color(0xFF141414),
+      backgroundColor: AppColors.panel,
       child: SafeArea(
         child: Column(
           children: [
@@ -48,7 +49,7 @@ class AppDrawer extends StatelessWidget {
                       Text(
                         'TheVent',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1.2,
@@ -57,7 +58,7 @@ class AppDrawer extends StatelessWidget {
                       Text(
                         'Speak freely. Anonymously.',
                         style: TextStyle(
-                          color: Color(0xFF8E8E8E),
+                          color: AppColors.textMuted,
                           fontSize: 11,
                         ),
                       ),
@@ -66,7 +67,7 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(color: Color(0xFF242424), height: 1),
+            const Divider(color: AppColors.divider, height: 1),
 
             // Navigation Items
             Expanded(
@@ -103,11 +104,7 @@ class AppDrawer extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF7C4DFF), Color(0xFF9E7BFF)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: AppColors.accent,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Material(
@@ -125,14 +122,14 @@ class AppDrawer extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.edit_note_rounded,
-                                color: Colors.white,
+                                color: AppColors.onAccent,
                                 size: 22,
                               ),
                               SizedBox(width: 8),
                               Text(
                                 'Create Vent',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.onAccent,
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -147,7 +144,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
 
-            const Divider(color: Color(0xFF242424), height: 1),
+            const Divider(color: AppColors.divider, height: 1),
 
             // User Info & Logout
             Padding(
@@ -157,7 +154,7 @@ class AppDrawer extends StatelessWidget {
                   UserAvatar(
                     imageUrl: user?.photoURL,
                     radius: 20,
-                    backgroundColor: const Color(0xFF262626),
+                    backgroundColor: AppColors.surfaceHigh,
                     fallbackIcon: Icons.person_rounded,
                     iconSize: 22,
                   ),
@@ -169,7 +166,7 @@ class AppDrawer extends StatelessWidget {
                         Text(
                           username,
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -180,7 +177,7 @@ class AppDrawer extends StatelessWidget {
                           Text(
                             email,
                             style: const TextStyle(
-                              color: Color(0xFF8E8E8E),
+                              color: AppColors.textMuted,
                               fontSize: 11,
                             ),
                             maxLines: 1,
@@ -192,7 +189,7 @@ class AppDrawer extends StatelessWidget {
                   IconButton(
                     icon: const Icon(
                       Icons.logout_rounded,
-                      color: Color(0xFFFF5277),
+                      color: AppColors.danger,
                       size: 22,
                     ),
                     tooltip: 'Logout',
@@ -225,17 +222,17 @@ class AppDrawer extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         tileColor: isSelected
-            ? const Color(0xFF7C4DFF).withOpacity(0.14)
+            ? AppColors.accent.withOpacity(0.14)
             : Colors.transparent,
         leading: Icon(
           icon,
-          color: isSelected ? const Color(0xFFB388FF) : const Color(0xFFA0A0A0),
+          color: isSelected ? AppColors.accentLight : AppColors.textSecondary,
           size: 22,
         ),
         title: Text(
           title,
           style: TextStyle(
-            color: isSelected ? Colors.white : const Color(0xFFB0B0B0),
+            color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
             fontSize: 14,
           ),

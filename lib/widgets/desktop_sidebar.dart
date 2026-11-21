@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/avatar_helper.dart';
+import '../theme/app_colors.dart';
 
 class DesktopSidebar extends StatelessWidget {
   final int currentIndex;
@@ -37,10 +38,10 @@ class DesktopSidebar extends StatelessWidget {
       curve: Curves.easeInOutCubic,
       width: sidebarWidth,
       decoration: const BoxDecoration(
-        color: Color(0xFF121212),
+        color: AppColors.panel,
         border: Border(
           right: BorderSide(
-            color: Color(0xFF242424),
+            color: AppColors.divider,
             width: 1.0,
           ),
         ),
@@ -77,7 +78,7 @@ class DesktopSidebar extends StatelessWidget {
                                 Text(
                                   'TheVent',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1.2,
@@ -88,7 +89,7 @@ class DesktopSidebar extends StatelessWidget {
                                 Text(
                                   'Speak freely',
                                   style: TextStyle(
-                                    color: Color(0xFF8E8E8E),
+                                    color: AppColors.textMuted,
                                     fontSize: 11,
                                     letterSpacing: 0.5,
                                   ),
@@ -104,7 +105,7 @@ class DesktopSidebar extends StatelessWidget {
                   IconButton(
                     icon: Icon(
                       isCollapsed ? Icons.menu : Icons.menu_open_rounded,
-                      color: const Color(0xFFB0B0B0),
+                      color: AppColors.textSecondary,
                       size: 22,
                     ),
                     tooltip: isCollapsed ? 'Expand menu' : 'Collapse menu',
@@ -115,7 +116,7 @@ class DesktopSidebar extends StatelessWidget {
               ),
             ),
 
-            const Divider(color: Color(0xFF242424), height: 1),
+            const Divider(color: AppColors.divider, height: 1),
             const SizedBox(height: 12),
 
             // Navigation Items
@@ -160,7 +161,7 @@ class DesktopSidebar extends StatelessWidget {
               ),
             ),
 
-            const Divider(color: Color(0xFF242424), height: 1),
+            const Divider(color: AppColors.divider, height: 1),
 
             // User Info Tile & Logout
             Padding(
@@ -170,7 +171,7 @@ class DesktopSidebar extends StatelessWidget {
                       child: IconButton(
                         icon: const Icon(
                           Icons.logout_rounded,
-                          color: Color(0xFFFF5277),
+                          color: AppColors.danger,
                           size: 22,
                         ),
                         tooltip: 'Logout',
@@ -182,7 +183,7 @@ class DesktopSidebar extends StatelessWidget {
                         UserAvatar(
                           imageUrl: user?.photoURL,
                           radius: 18,
-                          backgroundColor: const Color(0xFF262626),
+                          backgroundColor: AppColors.surfaceHigh,
                           fallbackIcon: Icons.person_rounded,
                           iconSize: 20,
                         ),
@@ -195,7 +196,7 @@ class DesktopSidebar extends StatelessWidget {
                               Text(
                                 username,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -206,7 +207,7 @@ class DesktopSidebar extends StatelessWidget {
                                 Text(
                                   email,
                                   style: const TextStyle(
-                                    color: Color(0xFF8E8E8E),
+                                    color: AppColors.textMuted,
                                     fontSize: 11,
                                   ),
                                   maxLines: 1,
@@ -218,7 +219,7 @@ class DesktopSidebar extends StatelessWidget {
                         IconButton(
                           icon: const Icon(
                             Icons.logout_rounded,
-                            color: Color(0xFFFF5277),
+                            color: AppColors.danger,
                             size: 20,
                           ),
                           tooltip: 'Logout',
@@ -245,7 +246,7 @@ class DesktopSidebar extends StatelessWidget {
     return InkWell(
       onTap: () => onTabSelected(index),
       borderRadius: BorderRadius.circular(12),
-      hoverColor: const Color(0xFF1E1E1E),
+      hoverColor: AppColors.surfaceHover,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         padding: EdgeInsets.symmetric(
@@ -254,12 +255,12 @@ class DesktopSidebar extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF7C4DFF).withOpacity(0.14)
+              ? AppColors.accent.withOpacity(0.14)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF7C4DFF).withOpacity(0.35)
+                ? AppColors.accent.withOpacity(0.35)
                 : Colors.transparent,
             width: 1,
           ),
@@ -272,8 +273,8 @@ class DesktopSidebar extends StatelessWidget {
             Icon(
               isSelected ? icon : outlineIcon,
               color: isSelected
-                  ? const Color(0xFFB388FF)
-                  : const Color(0xFFA0A0A0),
+                  ? AppColors.accentLight
+                  : AppColors.textSecondary,
               size: 22,
             ),
             if (!isCollapsed) ...[
@@ -283,8 +284,8 @@ class DesktopSidebar extends StatelessWidget {
                   label,
                   style: TextStyle(
                     color: isSelected
-                        ? Colors.white
-                        : const Color(0xFFB0B0B0),
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                     fontSize: 14,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.w500,
@@ -296,7 +297,7 @@ class DesktopSidebar extends StatelessWidget {
                   width: 6,
                   height: 6,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFB388FF),
+                    color: AppColors.accentLight,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -319,15 +320,11 @@ class DesktopSidebar extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7C4DFF), Color(0xFF9E7BFF)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: AppColors.accent,
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF7C4DFF).withOpacity(0.35),
+                        color: AppColors.shadow.withOpacity(0.35),
                         blurRadius: 10,
                         offset: const Offset(0, 3),
                       ),
@@ -335,7 +332,7 @@ class DesktopSidebar extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.add_rounded,
-                    color: Colors.white,
+                    color: AppColors.onAccent,
                     size: 24,
                   ),
                 ),
@@ -344,15 +341,11 @@ class DesktopSidebar extends StatelessWidget {
           )
         : Container(
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF7C4DFF), Color(0xFF9E7BFF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF7C4DFF).withOpacity(0.32),
+                  color: AppColors.shadow.withOpacity(0.32),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -370,14 +363,14 @@ class DesktopSidebar extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.edit_note_rounded,
-                        color: Colors.white,
+                        color: AppColors.onAccent,
                         size: 22,
                       ),
                       SizedBox(width: 8),
                       Text(
                         'Create Vent',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.onAccent,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,

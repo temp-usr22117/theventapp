@@ -11,6 +11,7 @@ import '../widgets/feed_controls.dart';
 import '../widgets/mood_widgets.dart';
 import '../widgets/vent_widgets.dart';
 import 'post_screen.dart';
+import '../theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onPostTap;
@@ -140,10 +141,10 @@ class HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildSearchAppBar() {
     return AppBar(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
         tooltip: 'Close search',
         onPressed: _closeSearch,
       ),
@@ -152,11 +153,11 @@ class HomeScreenState extends State<HomeScreen> {
         controller: _searchController,
         autofocus: true,
         textInputAction: TextInputAction.search,
-        cursorColor: const Color(0xFF7C4DFF),
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+        cursorColor: AppColors.accent,
+        style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
         decoration: const InputDecoration(
           hintText: 'Search vents by keyword...',
-          hintStyle: TextStyle(color: Color(0xFF8E8E8E), fontSize: 16),
+          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 16),
           border: InputBorder.none,
         ),
         onChanged: _setQuery,
@@ -164,7 +165,7 @@ class HomeScreenState extends State<HomeScreen> {
       actions: [
         if (_query.isNotEmpty)
           IconButton(
-            icon: const Icon(Icons.close_rounded, color: Color(0xFF9E9E9E)),
+            icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
             tooltip: 'Clear search',
             onPressed: () {
               _searchController.clear();
@@ -179,7 +180,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _searchButton() {
     return IconButton(
-      icon: const Icon(Icons.search_rounded, color: Color(0xFF9E9E9E)),
+      icon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
       tooltip: 'Search vents',
       onPressed: _openSearch,
     );
@@ -249,18 +250,18 @@ class HomeScreenState extends State<HomeScreen> {
         if (!didPop && _isSearching) _closeSearch();
       },
       child: Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       appBar: _isSearching
           ? _buildSearchAppBar()
           : isWide
           ? AppBar(
-              backgroundColor: const Color(0xFF0D0D0D),
+              backgroundColor: AppColors.background,
               elevation: 0,
               automaticallyImplyLeading: false,
               title: const Text(
                 'Home Feed',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
@@ -271,7 +272,7 @@ class HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: const Icon(
                     Icons.refresh_rounded,
-                    color: Color(0xFF9E9E9E),
+                    color: AppColors.textSecondary,
                   ),
                   tooltip: 'Refresh feed',
                   onPressed: _loadPosts,
@@ -281,12 +282,12 @@ class HomeScreenState extends State<HomeScreen> {
               bottom: _buildFeedControls(),
             )
           : AppBar(
-              backgroundColor: const Color(0xFF0D0D0D),
+              backgroundColor: AppColors.background,
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(
                   Icons.menu_rounded,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
                 tooltip: 'Open menu',
                 onPressed: () {
@@ -304,7 +305,7 @@ class HomeScreenState extends State<HomeScreen> {
                   const Text(
                     'TheVent',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
@@ -317,7 +318,7 @@ class HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: const Icon(
                     Icons.refresh_rounded,
-                    color: Color(0xFF9E9E9E),
+                    color: AppColors.textSecondary,
                   ),
                   tooltip: 'Refresh',
                   onPressed: _loadPosts,
@@ -333,7 +334,7 @@ class HomeScreenState extends State<HomeScreen> {
           child: _isLoading
               ? const Center(
                   child: CircularProgressIndicator(
-                    color: Color(0xFF7C4DFF),
+                    color: AppColors.accent,
                   ),
                 )
               : _posts.isEmpty
@@ -343,14 +344,14 @@ class HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Icon(
                             Icons.inbox_outlined,
-                            color: Color(0xFF9E9E9E),
+                            color: AppColors.textSecondary,
                             size: 64,
                           ),
                           const SizedBox(height: 16),
                           const Text(
                             'No vents yet',
                             style: TextStyle(
-                              color: Color(0xFF9E9E9E),
+                              color: AppColors.textSecondary,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -359,7 +360,7 @@ class HomeScreenState extends State<HomeScreen> {
                           const Text(
                             'Be the first one to vent!',
                             style: TextStyle(
-                              color: Color(0xFF9E9E9E),
+                              color: AppColors.textSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -369,8 +370,8 @@ class HomeScreenState extends State<HomeScreen> {
                             icon: const Icon(Icons.add_rounded),
                             label: const Text('Create a Vent'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7C4DFF),
-                              foregroundColor: Colors.white,
+                              backgroundColor: AppColors.accent,
+                              foregroundColor: AppColors.onAccent,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,
                                 vertical: 12,
@@ -385,7 +386,7 @@ class HomeScreenState extends State<HomeScreen> {
                     )
                   : RefreshIndicator(
                       onRefresh: _loadPosts,
-                      color: const Color(0xFF7C4DFF),
+                      color: AppColors.accent,
                       child: ListView.builder(
                         controller: _scrollController,
                         // Keep pull-to-refresh working when a filter leaves
@@ -437,7 +438,7 @@ class HomeScreenState extends State<HomeScreen> {
                 : mood?.icon ?? Icons.filter_alt_off_rounded,
             color: query.isEmpty && mood != null
                 ? mood.color
-                : const Color(0xFF9E9E9E),
+                : AppColors.textSecondary,
             size: 56,
           ),
           const SizedBox(height: 16),
@@ -447,7 +448,7 @@ class HomeScreenState extends State<HomeScreen> {
                 : 'No ${mood?.label.toLowerCase() ?? ''} vents yet',
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Color(0xFF9E9E9E),
+              color: AppColors.textSecondary,
               fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
@@ -458,7 +459,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ? 'Try different keywords.'
                 : 'Try another mood, or share how you feel.',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF9E9E9E), fontSize: 13),
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           if (_hasActiveFilters) ...[
             const SizedBox(height: 20),
@@ -467,7 +468,7 @@ class HomeScreenState extends State<HomeScreen> {
               child: const Text(
                 'Show all vents',
                 style: TextStyle(
-                  color: Color(0xFF9E7BFF),
+                  color: AppColors.accentLight,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -484,10 +485,10 @@ class HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF161616),
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF282828),
+          color: AppColors.border,
           width: 1,
         ),
       ),
@@ -496,7 +497,7 @@ class HomeScreenState extends State<HomeScreen> {
           UserAvatar(
             imageUrl: user?.photoURL,
             radius: 19,
-            backgroundColor: const Color(0xFF262626),
+            backgroundColor: AppColors.surfaceHigh,
             fallbackIcon: Icons.person_outline_rounded,
             iconSize: 20,
           ),
@@ -511,16 +512,16 @@ class HomeScreenState extends State<HomeScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF202020),
+                  color: AppColors.surfaceRaised,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFF303030),
+                    color: AppColors.border,
                   ),
                 ),
                 child: const Text(
                   "What's on your mind? Vent anonymously...",
                   style: TextStyle(
-                    color: Color(0xFF8E8E8E),
+                    color: AppColors.textMuted,
                     fontSize: 14,
                   ),
                 ),
@@ -531,8 +532,8 @@ class HomeScreenState extends State<HomeScreen> {
           ElevatedButton.icon(
             onPressed: _triggerCreatePost,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7C4DFF),
-              foregroundColor: Colors.white,
+              backgroundColor: AppColors.accent,
+              foregroundColor: AppColors.onAccent,
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
@@ -583,29 +584,29 @@ class HomeScreenState extends State<HomeScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: AppColors.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: const Text(
           'Delete Vent',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
         ),
         content: const Text(
           'Are you sure you want to delete this vent? This action cannot be undone.',
-          style: TextStyle(color: Color(0xFF9E9E9E)),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: Color(0xFF9E9E9E))),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
               'Delete',
               style: TextStyle(
-                color: Color(0xFFFF4D6D),
+                color: AppColors.danger,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -625,7 +626,7 @@ class HomeScreenState extends State<HomeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Vent deleted successfully'),
-            backgroundColor: const Color(0xFF2E7D32),
+            backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -636,7 +637,7 @@ class HomeScreenState extends State<HomeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message'] ?? 'Failed to delete vent'),
-            backgroundColor: const Color(0xFFD32F2F),
+            backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -691,18 +692,18 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: _isHovered ? const Color(0xFF1E1E1E) : const Color(0xFF171717),
+            color: _isHovered ? AppColors.surfaceHover : AppColors.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: _isHovered
-                  ? const Color(0xFF7C4DFF).withOpacity(0.45)
-                  : const Color(0xFF282828),
+                  ? AppColors.accent.withOpacity(0.45)
+                  : AppColors.border,
               width: 1,
             ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF7C4DFF).withOpacity(0.08),
+                      color: AppColors.shadow.withOpacity(0.08),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -718,7 +719,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                   UserAvatar(
                     imageUrl: post.profilePictureUrl,
                     radius: 20,
-                    backgroundColor: const Color(0xFF282828),
+                    backgroundColor: AppColors.surfaceHigh,
                     fallbackIcon: Icons.person_outline,
                     iconSize: 20,
                   ),
@@ -735,7 +736,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14,
                                 ),
@@ -746,7 +747,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                               width: 3,
                               height: 3,
                               decoration: const BoxDecoration(
-                                color: Color(0xFF6E6E6E),
+                                color: AppColors.textMuted,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -754,7 +755,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                             Text(
                               widget.timeAgo,
                               style: const TextStyle(
-                                color: Color(0xFF8E8E8E),
+                                color: AppColors.textMuted,
                                 fontSize: 12,
                               ),
                             ),
@@ -769,7 +770,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                             const Text(
                               'Anonymous Member',
                               style: TextStyle(
-                                color: Color(0xFF6E6E6E),
+                                color: AppColors.textMuted,
                                 fontSize: 11,
                               ),
                             ),
@@ -803,15 +804,15 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                     post.content,
                     widget.highlightTerms,
                     TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                       fontWeight: FontWeight.w600,
                       backgroundColor:
-                          const Color(0xFF7C4DFF).withValues(alpha: 0.35),
+                          AppColors.accent.withValues(alpha: 0.35),
                     ),
                   ),
                 ),
                 style: const TextStyle(
-                  color: Color(0xFFE4E4E4),
+                  color: AppColors.textBody,
                   fontSize: 15,
                   height: 1.55,
                   letterSpacing: 0.2,
@@ -821,7 +822,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
               ),
               const SizedBox(height: 16),
 
-              const Divider(color: Color(0xFF242424), height: 1),
+              const Divider(color: AppColors.divider, height: 1),
               const SizedBox(height: 12),
 
               // Action Buttons Row (Like, Reply, Share)
@@ -843,8 +844,8 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                             color: post.isLiked
-                                ? const Color(0xFFFF4D6D)
-                                : const Color(0xFF9E9E9E),
+                                ? AppColors.like
+                                : AppColors.textSecondary,
                             size: 19,
                           ),
                           const SizedBox(width: 6),
@@ -852,8 +853,8 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                             '${post.likesCount}',
                             style: TextStyle(
                               color: post.isLiked
-                                  ? const Color(0xFFFF4D6D)
-                                  : const Color(0xFF9E9E9E),
+                                  ? AppColors.like
+                                  : AppColors.textSecondary,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
                             ),
@@ -877,14 +878,14 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                         children: [
                           Icon(
                             Icons.chat_bubble_outline_rounded,
-                            color: Color(0xFF9E9E9E),
+                            color: AppColors.textSecondary,
                             size: 18,
                           ),
                           SizedBox(width: 6),
                           Text(
                             'Replies',
                             style: TextStyle(
-                              color: Color(0xFF9E9E9E),
+                              color: AppColors.textSecondary,
                               fontSize: 13,
                             ),
                           ),
@@ -898,7 +899,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                   IconButton(
                     icon: const Icon(
                       Icons.share_outlined,
-                      color: Color(0xFF7E7E7E),
+                      color: AppColors.textMuted,
                       size: 18,
                     ),
                     tooltip: 'Copy vent',
@@ -908,7 +909,7 @@ class _HoverablePostCardState extends State<_HoverablePostCard> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: const Text('Vent text copied to clipboard!'),
-                          backgroundColor: const Color(0xFF2C2C2C),
+                          backgroundColor: AppColors.surfaceHigh,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),

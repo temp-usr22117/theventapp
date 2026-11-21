@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theventapp/theme/app_colors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:theventapp/utils/responsive.dart';
 
@@ -27,7 +28,7 @@ void main() {
                             Text('Failed to upload image'),
                           ],
                         ),
-                        backgroundColor: const Color(0xFFD32F2F),
+                        backgroundColor: AppColors.error,
                         behavior: SnackBarBehavior.floating,
                         margin: EdgeInsets.only(
                           bottom: Responsive.isWide(context) ? 20.0 : 100.0,
@@ -56,7 +57,7 @@ void main() {
     expect(find.text('Failed to upload image'), findsOneWidget);
 
     final SnackBar snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
-    expect(snackBar.backgroundColor, const Color(0xFFD32F2F));
+    expect(snackBar.backgroundColor, AppColors.error);
     expect(snackBar.behavior, SnackBarBehavior.floating);
 
     final margin = snackBar.margin as EdgeInsets;

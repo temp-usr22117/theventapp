@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../theme/app_colors.dart';
 
 class ReportBugScreen extends StatefulWidget {
   const ReportBugScreen({super.key});
@@ -70,7 +71,7 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFF2C2C2C),
+        backgroundColor: AppColors.surfaceHigh,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -82,21 +83,21 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         title: const Text(
           'Report a Bug',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -119,10 +120,10 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A1A),
+                  color: AppColors.surfaceRaised,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF7C4DFF).withOpacity(0.3),
+                    color: AppColors.accent.withOpacity(0.3),
                   ),
                 ),
                 child: Row(
@@ -130,12 +131,12 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF7C4DFF).withOpacity(0.15),
+                        color: AppColors.accent.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.bug_report_outlined,
-                        color: Color(0xFF7C4DFF),
+                        color: AppColors.accent,
                         size: 26,
                       ),
                     ),
@@ -147,7 +148,7 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                           Text(
                             'Found a bug?',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -156,7 +157,7 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                           Text(
                             'Help us improve The Vent by reporting it via email or GitHub.',
                             style: TextStyle(
-                              color: Color(0xFF9E9E9E),
+                              color: AppColors.textSecondary,
                               fontSize: 12,
                               height: 1.4,
                             ),
@@ -233,7 +234,7 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
               const Text(
                 'Submit via',
                 style: TextStyle(
-                  color: Color(0xFF9E9E9E),
+                  color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -246,8 +247,8 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _sendEmail,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C4DFF),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.onAccent,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -271,13 +272,13 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _openGitHub,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A1A1A),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.surfaceRaised,
+                    foregroundColor: AppColors.textPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: const BorderSide(
-                        color: Color(0xFF2C2C2C),
+                        color: AppColors.border,
                         width: 1,
                       ),
                     ),
@@ -311,14 +312,14 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
       children: [
         Icon(
           icon,
-          color: const Color(0xFF7C4DFF),
+          color: AppColors.accent,
           size: 18,
         ),
         const SizedBox(width: 8),
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -327,7 +328,7 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
           const Text(
             ' *',
             style: TextStyle(
-              color: Color(0xFFFF4D6D),
+              color: AppColors.danger,
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
@@ -347,52 +348,52 @@ class _ReportBugScreenState extends State<ReportBugScreen> {
       maxLines: maxLines,
       validator: validator,
       style: const TextStyle(
-        color: Colors.white,
+        color: AppColors.textPrimary,
         fontSize: 14,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(
-          color: Color(0xFF555555),
+          color: AppColors.textDisabled,
           fontSize: 13,
           height: 1.5,
         ),
         filled: true,
-        fillColor: const Color(0xFF1A1A1A),
+        fillColor: AppColors.surfaceRaised,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFF2C2C2C),
+            color: AppColors.border,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFF2C2C2C),
+            color: AppColors.border,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFF7C4DFF),
+            color: AppColors.accent,
             width: 1.5,
           ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFFFF4D6D),
+            color: AppColors.danger,
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(
-            color: Color(0xFFFF4D6D),
+            color: AppColors.danger,
             width: 1.5,
           ),
         ),
         errorStyle: const TextStyle(
-          color: Color(0xFFFF4D6D),
+          color: AppColors.danger,
         ),
         contentPadding: const EdgeInsets.all(16),
       ),
