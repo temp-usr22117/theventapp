@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theventapp/theme/app_colors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:theventapp/models/post_model.dart';
 
@@ -13,9 +14,9 @@ void main() {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF161616),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF262626)),
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: const Column(
                   children: [
@@ -32,7 +33,7 @@ void main() {
                       'Your anonymous vents and thoughts will appear here.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFF8E8E8E),
+                        color: AppColors.textMuted,
                         fontSize: 13,
                       ),
                     ),

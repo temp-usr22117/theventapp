@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 /// Helper to resolve any avatar string into an [ImageProvider].
 ///
@@ -66,8 +67,8 @@ class UserAvatar extends StatelessWidget {
     this.radius = 20,
     this.fallbackIcon = Icons.person_outline,
     this.iconSize,
-    this.backgroundColor = const Color(0xFF2C2C2C),
-    this.iconColor = const Color(0xFF9E9E9E),
+    this.backgroundColor = AppColors.surfaceHigh,
+    this.iconColor = AppColors.textSecondary,
   });
 
   @override

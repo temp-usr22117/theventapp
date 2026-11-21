@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/mood.dart';
+import '../theme/app_colors.dart';
 
 /// Small pill showing a vent's mood. Tappable when [onTap] is provided.
 class MoodBadge extends StatelessWidget {
@@ -106,7 +107,7 @@ class MoodFilterBar extends StatelessWidget {
           _MoodChip(
             label: 'All',
             icon: Icons.all_inclusive_rounded,
-            color: const Color(0xFF7C4DFF),
+            color: AppColors.accent,
             selected: selected == null,
             onTap: () => onChanged(null),
           ),
@@ -158,10 +159,10 @@ class _MoodChip extends StatelessWidget {
             decoration: BoxDecoration(
               color: selected
                   ? color.withValues(alpha: 0.2)
-                  : const Color(0xFF1A1A1A),
+                  : AppColors.surfaceRaised,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: selected ? color : const Color(0xFF2C2C2C),
+                color: selected ? color : AppColors.border,
               ),
             ),
             child: Row(
@@ -170,13 +171,13 @@ class _MoodChip extends StatelessWidget {
                 Icon(
                   icon,
                   size: 15,
-                  color: selected ? color : const Color(0xFF9E9E9E),
+                  color: selected ? color : AppColors.textSecondary,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: TextStyle(
-                    color: selected ? Colors.white : const Color(0xFFBDBDBD),
+                    color: selected ? AppColors.textPrimary : AppColors.textSecondary,
                     fontSize: 13,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                   ),

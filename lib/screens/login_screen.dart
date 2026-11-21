@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const Text(
           'Welcome Back',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -70,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const Text(
           'Login to continue venting',
           style: TextStyle(
-            color: Color(0xFF9E9E9E),
+            color: AppColors.textSecondary,
             fontSize: 13,
           ),
         ),
@@ -83,10 +84,10 @@ class _LoginScreenState extends State<LoginScreen> {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: const Color(0xFFFF4D6D).withOpacity(0.15),
+              color: AppColors.danger.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFFFF4D6D).withOpacity(0.5),
+                color: AppColors.danger.withOpacity(0.5),
                 width: 1,
               ),
             ),
@@ -94,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(
                   Icons.error_outline,
-                  color: Color(0xFFFF4D6D),
+                  color: AppColors.danger,
                   size: 18,
                 ),
                 const SizedBox(width: 10),
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     _errorMessage!,
                     style: const TextStyle(
-                      color: Color(0xFFFF4D6D),
+                      color: AppColors.danger,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       height: 1.4,
@@ -116,18 +117,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
         TextField(
           controller: _usernameController,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: 'Username',
             hintStyle: const TextStyle(
-              color: Color(0xFF9E9E9E),
+              color: AppColors.textSecondary,
             ),
             prefixIcon: const Icon(
               Icons.person_outline,
-              color: Color(0xFF7C4DFF),
+              color: AppColors.accent,
             ),
             filled: true,
-            fillColor: const Color(0xFF2C2C2C),
+            fillColor: AppColors.surfaceHigh,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -135,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFF7C4DFF),
+                color: AppColors.accent,
                 width: 1.5,
               ),
             ),
@@ -145,22 +146,22 @@ class _LoginScreenState extends State<LoginScreen> {
         TextField(
           controller: _passwordController,
           obscureText: _obscurePassword,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: 'Password',
             hintStyle: const TextStyle(
-              color: Color(0xFF9E9E9E),
+              color: AppColors.textSecondary,
             ),
             prefixIcon: const Icon(
               Icons.lock_outline,
-              color: Color(0xFF7C4DFF),
+              color: AppColors.accent,
             ),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: const Color(0xFF9E9E9E),
+                color: AppColors.textSecondary,
               ),
               onPressed: () {
                 setState(() {
@@ -169,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
             filled: true,
-            fillColor: const Color(0xFF2C2C2C),
+            fillColor: AppColors.surfaceHigh,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -177,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: Color(0xFF7C4DFF),
+                color: AppColors.accent,
                 width: 1.5,
               ),
             ),
@@ -190,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ElevatedButton(
             onPressed: _isLoading ? null : _login,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7C4DFF),
+              backgroundColor: AppColors.accent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -200,14 +201,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: AppColors.onAccent,
                       strokeWidth: 2,
                     ),
                   )
                 : const Text(
                     'Login',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.onAccent,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
@@ -225,14 +226,14 @@ class _LoginScreenState extends State<LoginScreen> {
               text: const TextSpan(
                 text: "Don't have an account? ",
                 style: TextStyle(
-                  color: Color(0xFF9E9E9E),
+                  color: AppColors.textSecondary,
                   fontSize: 13,
                 ),
                 children: [
                   TextSpan(
                     text: 'Register',
                     style: TextStyle(
-                      color: Color(0xFF7C4DFF),
+                      color: AppColors.accent,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -252,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (isWide) {
       return Scaffold(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         body: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -261,10 +262,10 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Container(
                 padding: const EdgeInsets.all(36),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF161616),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: const Color(0xFF282828),
+                    color: AppColors.border,
                     width: 1,
                   ),
                   boxShadow: [
@@ -287,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'TheVent',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
@@ -297,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'Speak freely. Anonymously.',
                       style: TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -314,7 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -333,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'TheVent',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.0,
@@ -343,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       'Speak freely. Anonymously.',
                       style: TextStyle(
-                        color: Color(0xFF9E9E9E),
+                        color: AppColors.textSecondary,
                         fontSize: 13,
                         letterSpacing: 1.0,
                       ),
@@ -357,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1A1A1A),
+                  color: AppColors.surfaceRaised,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(32),
                     topRight: Radius.circular(32),

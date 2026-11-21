@@ -18,6 +18,8 @@ import 'services/session_service.dart';
 import 'services/auth_service.dart';
 import 'utils/responsive.dart';
 import 'models/post_model.dart';
+import 'theme/app_theme.dart';
+import 'theme/app_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,10 +39,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TheVent',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0D0D0D),
-        primaryColor: const Color(0xFF7C4DFF),
-      ),
+      theme: AppTheme.dark,
       home: const AuthGate(),
       routes: {
         '/login': (context) => const LoginScreen(),
@@ -246,24 +245,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: AppColors.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         title: const Text(
           'Logout',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: const Text(
           'Are you sure you want to logout?',
-          style: TextStyle(color: Color(0xFF9E9E9E)),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Color(0xFF9E9E9E)),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           TextButton(
@@ -281,7 +280,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             child: const Text(
               'Logout',
               style: TextStyle(
-                color: Color(0xFFFF4D6D),
+                color: AppColors.danger,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -299,7 +298,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       // Desktop / Wide layout (Reddit / Twitter style)
       return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

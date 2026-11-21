@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/feed_query.dart';
+import '../theme/app_colors.dart';
 
 /// Compact "Latest | Top" segmented toggle for the feed sort order.
 class FeedSortToggle extends StatelessWidget {
@@ -17,9 +18,9 @@ class FeedSortToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.surfaceRaised,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF2C2C2C)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -61,7 +62,7 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? Colors.white : const Color(0xFF9E9E9E);
+    final color = selected ? AppColors.textPrimary : AppColors.textSecondary;
     return Tooltip(
       message: tooltip,
       child: Semantics(
@@ -77,7 +78,7 @@ class _Segment extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: selected
-                    ? const Color(0xFF7C4DFF).withValues(alpha: 0.3)
+                    ? AppColors.accent.withValues(alpha: 0.3)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
               ),

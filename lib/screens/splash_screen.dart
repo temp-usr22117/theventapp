@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: Center(
@@ -49,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
               const Text(
                 'TheVent',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
@@ -59,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
               const Text(
                 'Speak freely. Anonymously.',
                 style: TextStyle(
-                  color: Color(0xFF9E9E9E),
+                  color: AppColors.textSecondary,
                   fontSize: 14,
                   letterSpacing: 1,
                 ),

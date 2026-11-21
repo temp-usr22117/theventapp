@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'report_bug_screen.dart';
+import '../theme/app_colors.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -8,21 +9,21 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0D),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         title: const Text(
           'About',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -46,7 +47,7 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF7C4DFF).withOpacity(0.4),
+                    color: AppColors.shadow.withOpacity(0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -66,7 +67,7 @@ class AboutScreen extends StatelessWidget {
             const Text(
               'TheVent',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -81,16 +82,16 @@ class AboutScreen extends StatelessWidget {
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFF7C4DFF).withOpacity(0.2),
+                color: AppColors.accent.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: const Color(0xFF7C4DFF).withOpacity(0.4),
+                  color: AppColors.accent.withOpacity(0.4),
                 ),
               ),
               child: const Text(
                 'Version 1.2.0',
                 style: TextStyle(
-                  color: Color(0xFF7C4DFF),
+                  color: AppColors.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -111,7 +112,7 @@ class AboutScreen extends StatelessWidget {
                   const Text(
                     'TheVent is a safe and anonymous space where you can freely express your thoughts, feelings, and frustrations without judgment.\n\nShare what\'s on your mind, connect with others who understand, and find comfort knowing you\'re not alone.',
                     style: TextStyle(
-                      color: Color(0xFF9E9E9E),
+                      color: AppColors.textSecondary,
                       fontSize: 14,
                       height: 1.6,
                     ),
@@ -172,15 +173,15 @@ class AboutScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF7C4DFF).withOpacity(0.15),
+                          color: AppColors.accent.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: const Color(0xFF7C4DFF).withOpacity(0.3),
+                            color: AppColors.accent.withOpacity(0.3),
                           ),
                         ),
                         child: const Icon(
                           Icons.groups_outlined,
-                          color: Color(0xFF7C4DFF),
+                          color: AppColors.accent,
                           size: 24,
                         ),
                       ),
@@ -191,7 +192,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             'mclovin22117',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),
@@ -200,7 +201,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             'Design & Development',
                             style: TextStyle(
-                              color: Color(0xFF9E9E9E),
+                              color: AppColors.textSecondary,
                               fontSize: 12,
                             ),
                           ),
@@ -243,10 +244,10 @@ class AboutScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
+                color: AppColors.surfaceRaised,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF2C2C2C),
+                  color: AppColors.border,
                 ),
               ),
               child: Column(
@@ -270,7 +271,7 @@ class AboutScreen extends StatelessWidget {
                     isLast: false,
                   ),
                   const Divider(
-                    color: Color(0xFF2C2C2C),
+                    color: AppColors.border,
                     height: 1,
                   ),
                   _buildLinkTile(
@@ -295,7 +296,7 @@ class AboutScreen extends StatelessWidget {
             const Text(
               'Made with ❤️ by mclovin22117',
               style: TextStyle(
-                color: Color(0xFF9E9E9E),
+                color: AppColors.textSecondary,
                 fontSize: 13,
               ),
             ),
@@ -303,7 +304,7 @@ class AboutScreen extends StatelessWidget {
             const Text(
               '© 2026 TheVent. All rights reserved.',
               style: TextStyle(
-                color: Color(0xFF555555),
+                color: AppColors.textDisabled,
                 fontSize: 12,
               ),
             ),
@@ -321,10 +322,10 @@ class AboutScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.surfaceRaised,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF2C2C2C),
+          color: AppColors.border,
         ),
       ),
       child: child,
@@ -340,12 +341,12 @@ class AboutScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: const Color(0xFF7C4DFF).withOpacity(0.15),
+            color: AppColors.accent.withOpacity(0.15),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFF7C4DFF),
+            color: AppColors.accent,
             size: 18,
           ),
         ),
@@ -353,7 +354,7 @@ class AboutScreen extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
@@ -375,12 +376,12 @@ class AboutScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFF2C2C2C),
+                color: AppColors.surfaceHigh,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF7C4DFF),
+                color: AppColors.accent,
                 size: 16,
               ),
             ),
@@ -391,7 +392,7 @@ class AboutScreen extends StatelessWidget {
                 Text(
                   label,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -399,7 +400,7 @@ class AboutScreen extends StatelessWidget {
                 Text(
                   description,
                   style: const TextStyle(
-                    color: Color(0xFF9E9E9E),
+                    color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
                 ),
@@ -409,7 +410,7 @@ class AboutScreen extends StatelessWidget {
         ),
         if (!isLast)
           const Divider(
-            color: Color(0xFF2C2C2C),
+            color: AppColors.border,
             height: 20,
           ),
       ],
@@ -423,16 +424,16 @@ class AboutScreen extends StatelessWidget {
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C2C2C),
+        color: AppColors.surfaceHigh,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF7C4DFF).withOpacity(0.3),
+          color: AppColors.accent.withOpacity(0.3),
         ),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: Color(0xFF7C4DFF),
+          color: AppColors.accent,
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
@@ -459,25 +460,25 @@ class AboutScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: const Color(0xFF7C4DFF).withOpacity(0.15),
+          color: AppColors.accent.withOpacity(0.15),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: const Color(0xFF7C4DFF),
+          color: AppColors.accent,
           size: 18,
         ),
       ),
       title: Text(
         title,
         style: const TextStyle(
-          color: Colors.white,
+          color: AppColors.textPrimary,
           fontSize: 14,
         ),
       ),
       trailing: const Icon(
         Icons.arrow_forward_ios,
-        color: Color(0xFF9E9E9E),
+        color: AppColors.textSecondary,
         size: 14,
       ),
     );

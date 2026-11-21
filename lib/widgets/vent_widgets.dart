@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/time_ago.dart';
+import '../theme/app_colors.dart';
 
 /// Highlighted "Edited · 5m ago" pill shown on vents the author has edited.
 class EditedBadge extends StatelessWidget {
@@ -7,7 +8,7 @@ class EditedBadge extends StatelessWidget {
 
   const EditedBadge({super.key, required this.editedAt});
 
-  static const Color _accent = Color(0xFFB39DFF);
+  static const Color _accent = AppColors.accentLight;
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +19,10 @@ class EditedBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
         decoration: BoxDecoration(
-          color: const Color(0xFF7C4DFF).withValues(alpha: 0.16),
+          color: AppColors.accent.withValues(alpha: 0.16),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFF7C4DFF).withValues(alpha: 0.45),
+            color: AppColors.accent.withValues(alpha: 0.45),
           ),
         ),
         child: Row(
@@ -56,7 +57,7 @@ class VentOwnerMenu extends StatelessWidget {
     super.key,
     required this.onEdit,
     required this.onDelete,
-    this.iconColor = const Color(0xFF8E8E8E),
+    this.iconColor = AppColors.textMuted,
   });
 
   @override
@@ -69,10 +70,10 @@ class VentOwnerMenu extends StatelessWidget {
         icon: Icon(Icons.more_vert_rounded, color: iconColor, size: 20),
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 140),
-        color: const Color(0xFF1E1E1E),
+        color: AppColors.surfaceRaised,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF2C2C2C)),
+          side: const BorderSide(color: AppColors.border),
         ),
         onSelected: (action) {
           switch (action) {
@@ -87,9 +88,9 @@ class VentOwnerMenu extends StatelessWidget {
             value: _OwnerAction.edit,
             child: Row(
               children: [
-                Icon(Icons.edit_outlined, size: 18, color: Colors.white),
+                Icon(Icons.edit_outlined, size: 18, color: AppColors.textPrimary),
                 SizedBox(width: 10),
-                Text('Edit', style: TextStyle(color: Colors.white)),
+                Text('Edit', style: TextStyle(color: AppColors.textPrimary)),
               ],
             ),
           ),
@@ -100,10 +101,10 @@ class VentOwnerMenu extends StatelessWidget {
                 Icon(
                   Icons.delete_outline_rounded,
                   size: 18,
-                  color: Color(0xFFFF5277),
+                  color: AppColors.danger,
                 ),
                 SizedBox(width: 10),
-                Text('Delete', style: TextStyle(color: Color(0xFFFF5277))),
+                Text('Delete', style: TextStyle(color: AppColors.danger)),
               ],
             ),
           ),
